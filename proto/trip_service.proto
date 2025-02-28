@@ -1,0 +1,46 @@
+syntax = "proto3";
+package main;
+option go_package = ".";
+import "google/protobuf/timestamp.proto";
+
+enum TripType {
+  cargo = 0;
+  passenger = 1;
+}
+
+message TripInfoCargo {
+  int32 id = 1;
+  string cargoType = 2;
+  string cargoName = 3;
+  float cargoWeight = 4;
+  float cargoCost = 5;
+  float distance = 6;
+}
+
+message TripInfoPassenger {
+  int32 id = 1;
+  int32 passengersNum = 2;
+  float distance = 3;
+}
+
+message Trip {
+  int32 id = 1;
+  int32 routeId = 2;
+  int32 driverId = 3;
+  int32 transportId = 4;
+  google.protobuf.Timestamp startTime = 5;
+  google.protobuf.Timestamp endTime = 6;
+  string type = 7;
+
+  oneof tripInfo {
+    TripInfoCargo cargo = 8;
+    TripInfoPassenger passengers = 9;
+  }
+}
+
+message Route {
+  int32 id = 1;
+  string name = 2;
+  repeated int32 transportIds = 3;
+}
+
