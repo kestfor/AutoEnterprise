@@ -28,29 +28,42 @@ func (d *BusController) GetFields() []any {
 	return append(transport, &d.Fields.PassengersNum)
 }
 
-func (d *BusController) All(ctx context.Context) ([]*pb.Transport, error) {
-	query := "select " + d.TransportController.Fields.ToStringSelect() +
-		", bus.passengers_num from transport right join bus on transport.id = bus.transport_id"
-	rows, err := d.DBPool.Query(ctx, query)
+func (bc *BusController) selectBusses(ctx context.Context, query string, args ...any) ([]*pb.Transport, error) {
+	rows, err := bc.DBPool.Query(ctx, query, args...)
 
 	if err != nil {
 		return nil, err
 	}
 
 	transports := make([]*pb.Transport, 0)
-	_, err = pgx.ForEachRow(rows, d.GetFields(), func() error {
+	_, err = pgx.ForEachRow(rows, bc.GetFields(), func() error {
 
-		newTransport := d.ScanTransport()
+		newTransport := bc.ScanTransport()
 
 		transportInfo := &pb.BusInfo{}
 
-		transportInfo.PassengersNum = d.Fields.PassengersNum.Int32
+		transportInfo.PassengersNum = bc.Fields.PassengersNum.Int32
 
 		newTransport.TransportInfo = &pb.Transport_BusInfo{BusInfo: transportInfo}
 		transports = append(transports, newTransport)
 		return nil
 	})
 	return transports, err
+}
+
+func (bc *BusController) selectQuery() string {
+	return "select " + bc.TransportController.Fields.ToStringSelect() +
+		", bus.passengers_num from transport right join bus on transport.id = bus.transport_id"
+}
+
+func (d *BusController) All(ctx context.Context) ([]*pb.Transport, error) {
+	return d.selectBusses(ctx, d.selectQuery())
+}
+
+func (d *BusController) Filtered(ctx context.Context, filter *pb.TransportFilter) ([]*pb.Transport, error) {
+	query := d.selectQuery()
+	query, args := AddDefaultTransportFilter(query, filter)
+	return d.selectBusses(ctx, query, args)
 }
 
 func (d *BusController) AlterInfo(tx pgx.Tx, ctx context.Context, transport *pb.Transport) error {

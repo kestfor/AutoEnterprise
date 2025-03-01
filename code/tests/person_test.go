@@ -62,7 +62,7 @@ func TestGetFilteredPersons(t *testing.T) {
 	client := pb.NewPersonServiceClient(conn)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*100)
 	defer cancel()
-	persons, err := client.GetFilteredPersons(ctx, &pb.PersonFilter{Roles: []pb.Role{pb.Role_manager}})
+	persons, err := client.GetFilteredPersons(ctx, &pb.PersonFilter{Roles: []pb.Role{pb.Role_assembler}})
 	if err != nil {
 		log.Fatalf("Ошибка при вызове GetAllPersons: %v", err)
 	}
@@ -82,6 +82,7 @@ func TestCreatePerson(t *testing.T) {
 	createDriver(ctx, client)
 	createManager(ctx, client)
 	createMaster(ctx, client)
+	createPerson(ctx, client, &assembler)
 }
 
 func TestAlterPerson(t *testing.T) {

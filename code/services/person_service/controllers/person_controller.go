@@ -108,8 +108,10 @@ func (pc *PersonController) AlterBasic(tx pgx.Tx, ctx context.Context, person *p
 }
 
 func (pc *PersonController) ScanPerson() *pb.Person {
+	id := pc.Fields.ID.Int32
+
 	newPerson := &pb.Person{
-		Id:         &pc.Fields.ID.Int32,
+		Id:         &id,
 		FirstName:  pc.Fields.FirstName.String,
 		SecondName: pc.Fields.LastName.String,
 		Role:       pc.Fields.Role.String,

@@ -97,16 +97,22 @@ message TransportOperationList {
   repeated TransportOperation operations = 1;
 }
 
+message TransportFilter {
+  optional int32 routeId = 1;
+  optional int32 garageFacilityId = 2;
+}
 
 service TransportService {
   rpc GetAllOperations(google.protobuf.Empty) returns (TransportOperationList) {}
   rpc CreateOperation(TransportOperation) returns (TransportOperation) {}
   rpc AlterOperation(TransportOperation) returns (TransportOperation) {}
 
+
   rpc GetAllGarages(google.protobuf.Empty) returns (GarageFacilityList) {}
   rpc AlterGarage(GarageFacility) returns (GarageFacility) {}
   rpc CreateGarage(GarageFacility) returns (GarageFacility) {}
 
+  rpc GetFilteredTransport(TransportFilter) returns (TransportList) {}
   rpc CreateTransport(Transport) returns (Transport) {}
   rpc AlterTransport(Transport) returns (Transport) {}
   rpc GetAllTransports(google.protobuf.Empty) returns (TransportList) {}

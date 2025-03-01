@@ -60,6 +60,16 @@ var foreman = Person{
 		Certification: nil}},
 }
 
+var assembler = Person{
+	FirstName:   "Иван",
+	SecondName:  "Иванов",
+	Role:        "assembler",
+	BirthDate:   timestamppb.New(time.Date(1980, 1, 1, 0, 0, 0, 0, time.UTC)),
+	PhoneNumber: "+79999999999",
+	Email:       "test@mail.com",
+	Salary:      100000,
+	PersonInfo:  &Person_AssemblerInfo{AssemblerInfo: &AssemblerInfo{}}}
+
 var tram = Transport{
 	Name:             "test",
 	Type:             "tram",

@@ -31,10 +31,8 @@ func (d *TruckController) GetFields() []any {
 	return append(transport, &d.Fields.CargoCapacityKg, &d.Fields.FuelConsumption, &d.Fields.TruckType, &d.Fields.YearsOfManufacture)
 }
 
-func (d *TruckController) All(ctx context.Context) ([]*pb.Transport, error) {
-	query := "select " + d.TransportController.Fields.ToStringSelect() +
-		", truck.cargo_capacity_kg, truck.fuel_consumption, truck.truck_type, truck.year_of_manufacture from transport right join truck on transport.id = truck.transport_id"
-	rows, err := d.DBPool.Query(ctx, query)
+func (d *TruckController) selectTrucks(ctx context.Context, query string, args ...any) ([]*pb.Transport, error) {
+	rows, err := d.DBPool.Query(ctx, query, args...)
 
 	if err != nil {
 		return nil, err
@@ -57,6 +55,22 @@ func (d *TruckController) All(ctx context.Context) ([]*pb.Transport, error) {
 		return nil
 	})
 	return transports, err
+
+}
+
+func (d *TruckController) selectQuery() string {
+	return "select " + d.TransportController.Fields.ToStringSelect() +
+		", truck.cargo_capacity_kg, truck.fuel_consumption, truck.truck_type, truck.year_of_manufacture from transport right join truck on transport.id = truck.transport_id"
+}
+
+func (d *TruckController) All(ctx context.Context) ([]*pb.Transport, error) {
+	return d.selectTrucks(ctx, d.selectQuery())
+}
+
+func (d *TruckController) Filtered(ctx context.Context, filter *pb.TransportFilter) ([]*pb.Transport, error) {
+	query := d.selectQuery()
+	query, args := AddDefaultTransportFilter(query, filter)
+	return d.selectTrucks(ctx, query, args)
 }
 
 func (d *TruckController) AlterInfo(tx pgx.Tx, ctx context.Context, transport *pb.Transport) error {

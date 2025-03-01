@@ -25,6 +25,7 @@ type Alterer interface {
 
 type Getter interface {
 	All(ctx context.Context) ([]*pb.Transport, error)
+	Filtered(ctx context.Context, filter *pb.TransportFilter) ([]*pb.Transport, error)
 }
 
 type Controller interface {

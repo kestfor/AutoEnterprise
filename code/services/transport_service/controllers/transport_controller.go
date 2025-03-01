@@ -2,8 +2,10 @@ package controllers
 
 import (
 	pb "AutoEnterpise/code/generated/transport"
+	"AutoEnterpise/code/utils"
 	"context"
 	"errors"
+	"fmt"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -139,4 +141,24 @@ func (dc *TransportController) All(ctx context.Context) ([]*pb.Transport, error)
 		return nil
 	})
 	return transports, err
+}
+
+func AddDefaultTransportFilter(query string, filter *pb.TransportFilter) (string, pgx.NamedArgs) {
+	args := pgx.NamedArgs{}
+	whereClauses := make([]string, 0)
+	if filter.GarageFacilityId != nil {
+		whereClauses = append(whereClauses, "garage_facility_id = @garage_facility_id")
+		args["garage_facility_id"] = filter.GetGarageFacilityId()
+	}
+
+	if filter.RouteId != nil {
+		query += " left join route on route.transport_id = transport.id"
+		whereClauses = append(whereClauses, "route.id = @route_id")
+		args["route_id"] = filter.GetRouteId()
+	}
+
+	if len(whereClauses) > 0 {
+		query += " WHERE " + fmt.Sprintf("%s", utils.JoinStrings(whereClauses, " AND "))
+	}
+	return query, args
 }

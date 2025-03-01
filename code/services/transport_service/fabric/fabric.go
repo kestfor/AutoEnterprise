@@ -45,8 +45,7 @@ func (c *TransportControllerFabric) Alter(ctx context.Context, person *pb.Transp
 	return cnt.Alter(ctx, person)
 }
 
-func (c *TransportControllerFabric) All(ctx context.Context) ([]*pb.Transport, error) {
-
+func (c *TransportControllerFabric) selectTransport(ctx context.Context, filter *pb.TransportFilter) ([]*pb.Transport, error) {
 	var wg sync.WaitGroup
 	resChan := make(chan []*pb.Transport, len(c.mapping))
 	errChan := make(chan error, len(c.mapping))
@@ -55,7 +54,13 @@ func (c *TransportControllerFabric) All(ctx context.Context) ([]*pb.Transport, e
 		wg.Add(1)
 		go func(c controllers.Controller) {
 			defer wg.Done()
-			persons, err := c.All(ctx)
+			var persons []*pb.Transport
+			var err error
+			if filter != nil {
+				persons, err = c.Filtered(ctx, filter)
+			} else {
+				persons, err = c.All(ctx)
+			}
 			if err != nil {
 				errChan <- err
 				return
@@ -78,4 +83,12 @@ func (c *TransportControllerFabric) All(ctx context.Context) ([]*pb.Transport, e
 	}
 
 	return res, nil
+}
+
+func (c *TransportControllerFabric) All(ctx context.Context) ([]*pb.Transport, error) {
+	return c.selectTransport(ctx, nil)
+}
+
+func (c *TransportControllerFabric) Filtered(ctx context.Context, filter *pb.TransportFilter) ([]*pb.Transport, error) {
+	return c.selectTransport(ctx, filter)
 }

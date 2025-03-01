@@ -25,7 +25,7 @@ create table truck
     cargo_capacity_kg   DECIMAL(10, 2),
     fuel_consumption    DECIMAL(10, 2),
     truck_type          VARCHAR(50),
-    year_of_manufacture INT,
+    years_of_manufacture INT,
     constraint unique_truck unique (transport_id, type),
     foreign key (transport_id, type) references transport (id, type) on delete cascade
 );
@@ -43,7 +43,7 @@ create table taxi
 (
     transport_id        int primary key ,
     is_available        BOOLEAN,
-    year_of_manufacture INT,
+    years_of_manufacture INT,
     type                transport_type default 'taxi' check ( type = 'taxi'),
     constraint unique_taxi unique (transport_id, type),
     foreign key (transport_id, type) references transport (id, type) on delete cascade
@@ -52,8 +52,8 @@ create table taxi
 create table tram
 (
     transport_id        int primary key ,
-    passenger_num       int,
-    year_of_manufacture INT,
+    passengers_num       int,
+    years_of_manufacture INT,
     is_operational      BOOLEAN,
     type                transport_type default 'tram' check ( type = 'tram'),
     constraint unique_tram unique (transport_id, type),
@@ -63,8 +63,8 @@ create table tram
 create table trolleybus
 (
     transport_id        int primary key ,
-    passenger_num       int,
-    year_of_manufacture INT,
+    passengers_num       int,
+    years_of_manufacture INT,
     is_operational      BOOLEAN,
     type                transport_type default 'trolleybus' check ( type = 'trolleybus'),
     constraint unique_trolleybus unique (transport_id, type),

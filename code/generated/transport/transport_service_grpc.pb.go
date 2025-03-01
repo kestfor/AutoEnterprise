@@ -20,15 +20,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	TransportService_GetAllOperations_FullMethodName = "/main.TransportService/GetAllOperations"
-	TransportService_CreateOperation_FullMethodName  = "/main.TransportService/CreateOperation"
-	TransportService_AlterOperation_FullMethodName   = "/main.TransportService/AlterOperation"
-	TransportService_GetAllGarages_FullMethodName    = "/main.TransportService/GetAllGarages"
-	TransportService_AlterGarage_FullMethodName      = "/main.TransportService/AlterGarage"
-	TransportService_CreateGarage_FullMethodName     = "/main.TransportService/CreateGarage"
-	TransportService_CreateTransport_FullMethodName  = "/main.TransportService/CreateTransport"
-	TransportService_AlterTransport_FullMethodName   = "/main.TransportService/AlterTransport"
-	TransportService_GetAllTransports_FullMethodName = "/main.TransportService/GetAllTransports"
+	TransportService_GetAllOperations_FullMethodName     = "/main.TransportService/GetAllOperations"
+	TransportService_CreateOperation_FullMethodName      = "/main.TransportService/CreateOperation"
+	TransportService_AlterOperation_FullMethodName       = "/main.TransportService/AlterOperation"
+	TransportService_GetAllGarages_FullMethodName        = "/main.TransportService/GetAllGarages"
+	TransportService_AlterGarage_FullMethodName          = "/main.TransportService/AlterGarage"
+	TransportService_CreateGarage_FullMethodName         = "/main.TransportService/CreateGarage"
+	TransportService_GetFilteredTransport_FullMethodName = "/main.TransportService/GetFilteredTransport"
+	TransportService_CreateTransport_FullMethodName      = "/main.TransportService/CreateTransport"
+	TransportService_AlterTransport_FullMethodName       = "/main.TransportService/AlterTransport"
+	TransportService_GetAllTransports_FullMethodName     = "/main.TransportService/GetAllTransports"
 )
 
 // TransportServiceClient is the client API for TransportService service.
@@ -41,6 +42,7 @@ type TransportServiceClient interface {
 	GetAllGarages(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GarageFacilityList, error)
 	AlterGarage(ctx context.Context, in *GarageFacility, opts ...grpc.CallOption) (*GarageFacility, error)
 	CreateGarage(ctx context.Context, in *GarageFacility, opts ...grpc.CallOption) (*GarageFacility, error)
+	GetFilteredTransport(ctx context.Context, in *TransportFilter, opts ...grpc.CallOption) (*TransportList, error)
 	CreateTransport(ctx context.Context, in *Transport, opts ...grpc.CallOption) (*Transport, error)
 	AlterTransport(ctx context.Context, in *Transport, opts ...grpc.CallOption) (*Transport, error)
 	GetAllTransports(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*TransportList, error)
@@ -114,6 +116,16 @@ func (c *transportServiceClient) CreateGarage(ctx context.Context, in *GarageFac
 	return out, nil
 }
 
+func (c *transportServiceClient) GetFilteredTransport(ctx context.Context, in *TransportFilter, opts ...grpc.CallOption) (*TransportList, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TransportList)
+	err := c.cc.Invoke(ctx, TransportService_GetFilteredTransport_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *transportServiceClient) CreateTransport(ctx context.Context, in *Transport, opts ...grpc.CallOption) (*Transport, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Transport)
@@ -154,6 +166,7 @@ type TransportServiceServer interface {
 	GetAllGarages(context.Context, *emptypb.Empty) (*GarageFacilityList, error)
 	AlterGarage(context.Context, *GarageFacility) (*GarageFacility, error)
 	CreateGarage(context.Context, *GarageFacility) (*GarageFacility, error)
+	GetFilteredTransport(context.Context, *TransportFilter) (*TransportList, error)
 	CreateTransport(context.Context, *Transport) (*Transport, error)
 	AlterTransport(context.Context, *Transport) (*Transport, error)
 	GetAllTransports(context.Context, *emptypb.Empty) (*TransportList, error)
@@ -184,6 +197,9 @@ func (UnimplementedTransportServiceServer) AlterGarage(context.Context, *GarageF
 }
 func (UnimplementedTransportServiceServer) CreateGarage(context.Context, *GarageFacility) (*GarageFacility, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateGarage not implemented")
+}
+func (UnimplementedTransportServiceServer) GetFilteredTransport(context.Context, *TransportFilter) (*TransportList, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFilteredTransport not implemented")
 }
 func (UnimplementedTransportServiceServer) CreateTransport(context.Context, *Transport) (*Transport, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTransport not implemented")
@@ -323,6 +339,24 @@ func _TransportService_CreateGarage_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TransportService_GetFilteredTransport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TransportFilter)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TransportServiceServer).GetFilteredTransport(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TransportService_GetFilteredTransport_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TransportServiceServer).GetFilteredTransport(ctx, req.(*TransportFilter))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _TransportService_CreateTransport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Transport)
 	if err := dec(in); err != nil {
@@ -407,6 +441,10 @@ var TransportService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateGarage",
 			Handler:    _TransportService_CreateGarage_Handler,
+		},
+		{
+			MethodName: "GetFilteredTransport",
+			Handler:    _TransportService_GetFilteredTransport_Handler,
 		},
 		{
 			MethodName: "CreateTransport",

@@ -8,6 +8,18 @@ import (
 	"log"
 )
 
+func (t *TransportService) GetFilteredTransport(ctx context.Context, filter *pb.TransportFilter) (*pb.TransportList, error) {
+	cnt := fabric.NewTransportControllerFabric(t.dbpool)
+	transports, err := cnt.Filtered(ctx, filter)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	} else {
+		log.Printf("got %d transports", len(transports))
+		return &pb.TransportList{Transports: transports}, nil
+	}
+}
+
 func (t *TransportService) GetAllTransports(ctx context.Context, _ *emptypb.Empty) (*pb.TransportList, error) {
 	cnt := fabric.NewTransportControllerFabric(t.dbpool)
 	transports, err := cnt.All(ctx)

@@ -29,31 +29,44 @@ func (d *TaxiController) GetFields() []any {
 	return append(transport, &d.Fields.IsAvailable, &d.Fields.YearsOfManufacture)
 }
 
-func (d *TaxiController) All(ctx context.Context) ([]*pb.Transport, error) {
-	query := "select " + d.TransportController.Fields.ToStringSelect() +
-		", taxi.is_available, taxi.years_of_manufacture from transport right join taxi on transport.id = taxi.transport_id"
-	rows, err := d.DBPool.Query(ctx, query)
+func (tc *TaxiController) selectTaxis(ctx context.Context, query string, args ...any) ([]*pb.Transport, error) {
+	rows, err := tc.DBPool.Query(ctx, query, args...)
 
 	if err != nil {
 		return nil, err
 	}
 
 	transports := make([]*pb.Transport, 0)
-	_, err = pgx.ForEachRow(rows, d.GetFields(), func() error {
+	_, err = pgx.ForEachRow(rows, tc.GetFields(), func() error {
 
-		newTransport := d.ScanTransport()
+		newTransport := tc.ScanTransport()
 
 		transportInfo := &pb.TaxiInfo{}
 
-		transportInfo.IsAvailable = d.Fields.IsAvailable.Bool
+		transportInfo.IsAvailable = tc.Fields.IsAvailable.Bool
 
-		transportInfo.YearsOfManufacture = d.Fields.YearsOfManufacture.Int32
+		transportInfo.YearsOfManufacture = tc.Fields.YearsOfManufacture.Int32
 
 		newTransport.TransportInfo = &pb.Transport_TaxiInfo{TaxiInfo: transportInfo}
 		transports = append(transports, newTransport)
 		return nil
 	})
 	return transports, err
+}
+
+func (tc *TaxiController) selectQuery() string {
+	return "select " + tc.TransportController.Fields.ToStringSelect() +
+		", taxi.is_available, taxi.years_of_manufacture from transport right join taxi on transport.id = taxi.transport_id"
+}
+
+func (d *TaxiController) All(ctx context.Context) ([]*pb.Transport, error) {
+	return d.selectTaxis(ctx, d.selectQuery())
+}
+
+func (d *TaxiController) Filtered(ctx context.Context, filter *pb.TransportFilter) ([]*pb.Transport, error) {
+	query := d.selectQuery()
+	query, args := AddDefaultTransportFilter(query, filter)
+	return d.selectTaxis(ctx, query, args)
 }
 
 func (d *TaxiController) AlterInfo(tx pgx.Tx, ctx context.Context, transport *pb.Transport) error {
@@ -63,7 +76,7 @@ func (d *TaxiController) AlterInfo(tx pgx.Tx, ctx context.Context, transport *pb
 	}
 
 	_, err := tx.Exec(ctx,
-		"UPDATE taxi SET is_available=$1, year_of_manufacture=$2 WHERE transport_id=$3",
+		"UPDATE taxi SET is_available=$1, years_of_manufacture=$2 WHERE transport_id=$3",
 		taxiInfo.IsAvailable, taxiInfo.YearsOfManufacture, transport.GetId())
 	return err
 }
@@ -74,7 +87,7 @@ func (d *TaxiController) CreateInfo(tx pgx.Tx, ctx context.Context, transport *p
 		return errors.New("taxi info is required")
 	}
 	_, err := tx.Exec(ctx,
-		"INSERT INTO taxi (transport_id, is_available, year_of_manufacture)  VALUES ($1, $2, $3)",
+		"INSERT INTO taxi (transport_id, is_available, years_of_manufacture)  VALUES ($1, $2, $3)",
 		transport.Id, taxiInfo.IsAvailable, taxiInfo.YearsOfManufacture)
 	return err
 }
