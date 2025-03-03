@@ -152,7 +152,15 @@ message RepairWorkFilter {
   optional int32 unitId = 6;
 }
 
+message TransportUnitList {
+  repeated TransportUnit units = 1;
+}
+
 service PersonService {
+  rpc CreateTransportUnit(TransportUnit) returns (TransportUnit) {}
+  rpc AlterTransportUnit(TransportUnit) returns (TransportUnit) {}
+  rpc GetAllTransportUnits(google.protobuf.Empty) returns (TransportUnitList) {}
+
   rpc GetFilteredPersons(PersonFilter) returns (PersonList) {}
   rpc GetFilteredRepairWorks(PersonFilter) returns (RepairWorkList) {}
 

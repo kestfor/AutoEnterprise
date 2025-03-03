@@ -102,7 +102,35 @@ message TransportFilter {
   optional int32 garageFacilityId = 2;
 }
 
+message ModifyRouteRequest {
+  int32 id = 1;
+  repeated int32 transportId = 2;
+}
+
+message Route {
+  optional int32 id = 1;
+  string name = 2;
+  repeated Transport transport = 3;
+}
+
+
+message RouteList {
+  repeated Route routes = 1;
+}
+
+message GetRouteByTransportIdRequest {
+  int32 transportId = 1;
+}
+
+
 service TransportService {
+  rpc CreateRoute(Route) returns (Route) {}
+  rpc AlterRoute(Route) returns (Route) {}
+  rpc GetAllRoutes(google.protobuf.Empty) returns (RouteList) {}
+  rpc GetRouteByTransportId(GetRouteByTransportIdRequest) returns (Route) {}
+  rpc AddTransportToRoute(ModifyRouteRequest) returns (google.protobuf.Empty) {}
+  rpc RemoveTransportFromRoute(ModifyRouteRequest) returns (google.protobuf.Empty) {}
+
   rpc GetAllOperations(google.protobuf.Empty) returns (TransportOperationList) {}
   rpc CreateOperation(TransportOperation) returns (TransportOperation) {}
   rpc AlterOperation(TransportOperation) returns (TransportOperation) {}

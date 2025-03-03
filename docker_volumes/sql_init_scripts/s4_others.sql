@@ -14,14 +14,21 @@ create table route
 (
     id           serial unique not null,
     name         varchar(255)  not null,
-    transport_id int           not null,
-    PRIMARY KEY (id, transport_id),
-    foreign key (transport_id) references transport on delete cascade
+    PRIMARY KEY (id)
+);
+
+create table transport_on_route
+(
+    transport_id int,
+    route_id     int,
+    PRIMARY KEY (transport_id, route_id),
+    foreign key (transport_id) references transport on delete cascade,
+    foreign key (route_id) references route on delete cascade
 );
 
 create table trip
 (
-    id           serial primary key ,
+    id           serial primary key,
     route_id     int       not null,
     driver_id    int       not null,
     transport_id int       not null,
@@ -30,7 +37,8 @@ create table trip
     type         trip_type not null,
     constraint unique_trip unique (id, type),
     foreign key (driver_id) REFERENCES person on delete set null,
-    foreign key (route_id, transport_id) references route on delete cascade
+    foreign key (transport_id) references transport on delete set null,
+    foreign key (route_id) references route on delete set null
 );
 
 create table transport_unit
@@ -59,7 +67,7 @@ create table repair_work
 
 create table trip_info_passenger
 (
-    trip_id        int primary key ,
+    trip_id        int primary key,
     passengers_num int            not null,
     distance       DECIMAL(10, 2) not null,
     type           trip_type default 'passenger' check ( type = 'passenger'),
@@ -69,10 +77,10 @@ create table trip_info_passenger
 
 create table trip_info_cargo
 (
-    trip_id      int primary key ,
-    cargo_name   int            not null,
+    trip_id      int primary key,
+    cargo_name   varchar(255)   not null,
     cargo_type   varchar(255)   not null,
-    cargo_cost   int            not null,
+    cargo_cost   DECIMAL(10, 2) not null,
     cargo_weight DECIMAL(10, 2) not null,
     distance     DECIMAL(10, 2) not null,
     type         trip_type default 'cargo' check ( type = 'cargo'),

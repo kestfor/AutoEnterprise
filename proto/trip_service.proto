@@ -2,6 +2,7 @@ syntax = "proto3";
 package main;
 option go_package = ".";
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
 
 enum TripType {
   cargo = 0;
@@ -24,12 +25,12 @@ message TripInfoPassenger {
 }
 
 message Trip {
-  int32 id = 1;
-  int32 routeId = 2;
-  int32 driverId = 3;
-  int32 transportId = 4;
+  optional int32 id = 1;
+  optional int32 routeId = 2;
+  optional int32 driverId = 3;
+  optional int32 transportId = 4;
   google.protobuf.Timestamp startTime = 5;
-  google.protobuf.Timestamp endTime = 6;
+  optional google.protobuf.Timestamp endTime = 6;
   string type = 7;
 
   oneof tripInfo {
@@ -38,9 +39,22 @@ message Trip {
   }
 }
 
-message Route {
-  int32 id = 1;
-  string name = 2;
-  repeated int32 transportIds = 3;
+message TripFilter {
+  int32 routeId = 1;
+  int32 driverId = 2;
+  int32 transportId = 3;
+  google.protobuf.Timestamp dateFrom = 4;
+  google.protobuf.Timestamp dateTo = 5;
+  string type = 6;
 }
 
+message TripList {
+  repeated Trip trips = 1;
+}
+
+service TripsService {
+  rpc CreateTrip(Trip) returns (Trip) {}
+  rpc GetAllTrips(google.protobuf.Empty) returns (TripList) {}
+  rpc AlterTrip(Trip) returns (Trip) {}
+  rpc GetFilteredTrips(TripFilter) returns (TripList) {}
+}
