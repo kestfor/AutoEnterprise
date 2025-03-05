@@ -2,6 +2,7 @@ package trips
 
 import (
 	. "AutoEnterpise/go_code/generated/trips"
+	"AutoEnterpise/go_code/utils"
 	"context"
 	"errors"
 	"github.com/jackc/pgx/v5"
@@ -23,6 +24,7 @@ type TripFields struct {
 	StartTime   pgtype.Timestamp
 	EndTime     pgtype.Timestamp
 	Type        pgtype.Text
+	Distance    pgtype.Float4
 }
 
 type Controller interface {
@@ -77,6 +79,11 @@ func (pc *TripController) ScanTrip() *Trip {
 		trip.TransportId = &tmp
 	}
 
+	if pc.Fields.Distance.Valid {
+		tmp := pc.Fields.Distance.Float32
+		trip.Distance = &tmp
+	}
+
 	return &trip
 }
 
@@ -94,8 +101,8 @@ func (pc *TripController) CreateBasic(tx pgx.Tx, ctx context.Context, trip *Trip
 		fet = pgtype.Timestamp{Time: trip.EndTime.AsTime(), Valid: true}
 	}
 
-	err := tx.QueryRow(ctx, "INSERT INTO trip (route_id, driver_id, transport_id, start_time, end_time, type) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
-		trip.RouteId, trip.DriverId, trip.TransportId, fst, fet, trip.Type).Scan(&trip.Id)
+	err := tx.QueryRow(ctx, "INSERT INTO trip (route_id, driver_id, transport_id, start_time, end_time, type, distance) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id",
+		trip.RouteId, trip.DriverId, trip.TransportId, fst, fet, trip.Type, trip.Distance).Scan(&trip.Id)
 	return err
 }
 
@@ -161,8 +168,17 @@ func (pc *TripController) AlterInfo(tx pgx.Tx, ctx context.Context, trip *Trip) 
 }
 
 func (pc *TripController) AlterBasic(tx pgx.Tx, ctx context.Context, trip *Trip) error {
-	_, err := tx.Exec(ctx, "update trip set route_id=$2, driver_id=$3, transport_id=$4, start_time=$5, end_time=$6, type=$7 where id=$1",
-		trip.GetId(), trip.RouteId, trip.DriverId, trip.TransportId, trip.StartTime, trip.EndTime, trip.Type)
+	var fst pgtype.Timestamp = pgtype.Timestamp{Valid: false}
+	var fet pgtype.Timestamp = pgtype.Timestamp{Valid: false}
+	if trip.StartTime != nil {
+		fst = pgtype.Timestamp{Time: trip.StartTime.AsTime(), Valid: true}
+	}
+	if trip.EndTime != nil {
+		fet = pgtype.Timestamp{Time: trip.EndTime.AsTime(), Valid: true}
+	}
+
+	_, err := tx.Exec(ctx, "update trip set route_id=$2, driver_id=$3, transport_id=$4, start_time=$5, end_time=$6, type=$7, distance=$8 where id=$1",
+		trip.GetId(), trip.RouteId, trip.DriverId, trip.TransportId, fst, fet, trip.Type, trip.Distance)
 	if err != nil {
 		return err
 	}
@@ -179,4 +195,30 @@ func (t *TripController) Filtered(ctx context.Context, filter *TripFilter) ([]*T
 
 func (tf *TripFields) ToStringSelect() string {
 	return "trip.id, trip.route_id, trip.driver_id, trip.transport_id, trip.start_time, trip.end_time, trip.type"
+}
+
+func DefaultFilter(initQuery string, filter *TripFilter) (query string, args pgx.NamedArgs) {
+	query = initQuery
+	whereClauses := make([]string, 0)
+
+	args = pgx.NamedArgs{}
+	if filter.TransportId != nil {
+		args["transport_id"] = *filter.TransportId
+		whereClauses = append(whereClauses, "trip.transport_id = @transport_id")
+	}
+
+	if filter.DateFrom != nil {
+		args["date_from"] = filter.DateFrom.AsTime()
+		whereClauses = append(whereClauses, "trip.start_time >= @date_from")
+	}
+
+	if filter.DateTo != nil {
+		args["date_to"] = filter.DateTo.AsTime()
+		whereClauses = append(whereClauses, "trip.end_time <= @date_to")
+	}
+
+	if len(whereClauses) > 0 {
+		query += " WHERE " + utils.JoinStrings(whereClauses, " AND ")
+	}
+	return query, args
 }

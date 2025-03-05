@@ -11,7 +11,6 @@ import (
 
 type PassengersTripFields struct {
 	PassengersNum pgtype.Int4
-	Distance      pgtype.Float4
 }
 
 type PassengersTripController struct {
@@ -25,7 +24,7 @@ func NewPassengersTripController(DBPool *pgxpool.Pool) Controller {
 
 func (d *PassengersTripController) GetFields() []any {
 	trip := d.TripController.GetFields()
-	return append(trip, &d.Fields.PassengersNum, &d.Fields.Distance)
+	return append(trip, &d.Fields.PassengersNum)
 }
 
 func (d *PassengersTripController) selectPassengersTrips(ctx context.Context, query string, args ...any) ([]*Trip, error) {
@@ -42,10 +41,6 @@ func (d *PassengersTripController) selectPassengersTrips(ctx context.Context, qu
 
 		tripInfo := &TripInfoPassenger{}
 
-		if d.Fields.Distance.Valid {
-			tripInfo.Distance = d.Fields.Distance.Float32
-		}
-
 		if d.Fields.PassengersNum.Valid {
 			tripInfo.PassengersNum = d.Fields.PassengersNum.Int32
 		}
@@ -59,7 +54,7 @@ func (d *PassengersTripController) selectPassengersTrips(ctx context.Context, qu
 
 func (d *PassengersTripController) selectQuery() string {
 	return "select " + d.TripController.Fields.ToStringSelect() +
-		", trip_info_passenger.passengers_num, trip_info_passenger.distance from trip right join trip_info_passenger on trip.id = trip_info_passenger.trip_id"
+		", trip_info_passenger.passengers_num from trip right join trip_info_passenger on trip.id = trip_info_passenger.trip_id"
 }
 
 func (d *PassengersTripController) All(ctx context.Context) ([]*Trip, error) {
@@ -67,7 +62,9 @@ func (d *PassengersTripController) All(ctx context.Context) ([]*Trip, error) {
 }
 
 func (d *PassengersTripController) Filtered(ctx context.Context, filter *TripFilter) ([]*Trip, error) {
-	return d.selectPassengersTrips(ctx, d.selectQuery())
+	q, a := DefaultFilter(d.selectQuery(), filter)
+
+	return d.selectPassengersTrips(ctx, q, a)
 }
 
 func (d *PassengersTripController) CreateInfo(tx pgx.Tx, ctx context.Context, trip *Trip) error {
@@ -76,8 +73,8 @@ func (d *PassengersTripController) CreateInfo(tx pgx.Tx, ctx context.Context, tr
 		return errors.New("passengers info is required")
 	}
 	_, err := tx.Exec(ctx,
-		"INSERT INTO trip_info_passenger (trip_id, passengers_num, distance, type)  VALUES ($1, $2, $3, $4)",
-		trip.Id, tripInfo.PassengersNum, tripInfo.Distance, trip.Type)
+		"INSERT INTO trip_info_passenger (trip_id, passengers_num, type)  VALUES ($1, $2, $3)",
+		trip.Id, tripInfo.PassengersNum, trip.Type)
 	return err
 }
 
@@ -87,8 +84,8 @@ func (d *PassengersTripController) AlterInfo(tx pgx.Tx, ctx context.Context, tri
 		return errors.New("cargo info is required")
 	}
 	_, err := tx.Exec(ctx,
-		"UPDATE trip_info_passenger SET passengers_num=$1, distance=$2 WHERE trip_id=$3",
-		tripInfo.PassengersNum, tripInfo.Distance, trip.Id)
+		"UPDATE trip_info_passenger SET passengers_num=$1 WHERE trip_id=$3",
+		tripInfo.PassengersNum, trip.Id)
 	return err
 }
 

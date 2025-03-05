@@ -29,6 +29,7 @@ const (
 	TransportService_GetAllOperations_FullMethodName         = "/main.TransportService/GetAllOperations"
 	TransportService_CreateOperation_FullMethodName          = "/main.TransportService/CreateOperation"
 	TransportService_AlterOperation_FullMethodName           = "/main.TransportService/AlterOperation"
+	TransportService_GetFilteredOperations_FullMethodName    = "/main.TransportService/GetFilteredOperations"
 	TransportService_GetAllGarages_FullMethodName            = "/main.TransportService/GetAllGarages"
 	TransportService_AlterGarage_FullMethodName              = "/main.TransportService/AlterGarage"
 	TransportService_CreateGarage_FullMethodName             = "/main.TransportService/CreateGarage"
@@ -51,6 +52,7 @@ type TransportServiceClient interface {
 	GetAllOperations(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*TransportOperationList, error)
 	CreateOperation(ctx context.Context, in *TransportOperation, opts ...grpc.CallOption) (*TransportOperation, error)
 	AlterOperation(ctx context.Context, in *TransportOperation, opts ...grpc.CallOption) (*TransportOperation, error)
+	GetFilteredOperations(ctx context.Context, in *OperationFilter, opts ...grpc.CallOption) (*TransportOperationList, error)
 	GetAllGarages(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GarageFacilityList, error)
 	AlterGarage(ctx context.Context, in *GarageFacility, opts ...grpc.CallOption) (*GarageFacility, error)
 	CreateGarage(ctx context.Context, in *GarageFacility, opts ...grpc.CallOption) (*GarageFacility, error)
@@ -158,6 +160,16 @@ func (c *transportServiceClient) AlterOperation(ctx context.Context, in *Transpo
 	return out, nil
 }
 
+func (c *transportServiceClient) GetFilteredOperations(ctx context.Context, in *OperationFilter, opts ...grpc.CallOption) (*TransportOperationList, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TransportOperationList)
+	err := c.cc.Invoke(ctx, TransportService_GetFilteredOperations_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *transportServiceClient) GetAllGarages(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GarageFacilityList, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GarageFacilityList)
@@ -241,6 +253,7 @@ type TransportServiceServer interface {
 	GetAllOperations(context.Context, *emptypb.Empty) (*TransportOperationList, error)
 	CreateOperation(context.Context, *TransportOperation) (*TransportOperation, error)
 	AlterOperation(context.Context, *TransportOperation) (*TransportOperation, error)
+	GetFilteredOperations(context.Context, *OperationFilter) (*TransportOperationList, error)
 	GetAllGarages(context.Context, *emptypb.Empty) (*GarageFacilityList, error)
 	AlterGarage(context.Context, *GarageFacility) (*GarageFacility, error)
 	CreateGarage(context.Context, *GarageFacility) (*GarageFacility, error)
@@ -284,6 +297,9 @@ func (UnimplementedTransportServiceServer) CreateOperation(context.Context, *Tra
 }
 func (UnimplementedTransportServiceServer) AlterOperation(context.Context, *TransportOperation) (*TransportOperation, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AlterOperation not implemented")
+}
+func (UnimplementedTransportServiceServer) GetFilteredOperations(context.Context, *OperationFilter) (*TransportOperationList, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFilteredOperations not implemented")
 }
 func (UnimplementedTransportServiceServer) GetAllGarages(context.Context, *emptypb.Empty) (*GarageFacilityList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllGarages not implemented")
@@ -489,6 +505,24 @@ func _TransportService_AlterOperation_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TransportService_GetFilteredOperations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OperationFilter)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TransportServiceServer).GetFilteredOperations(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TransportService_GetFilteredOperations_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TransportServiceServer).GetFilteredOperations(ctx, req.(*OperationFilter))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _TransportService_GetAllGarages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -657,6 +691,10 @@ var TransportService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AlterOperation",
 			Handler:    _TransportService_AlterOperation_Handler,
+		},
+		{
+			MethodName: "GetFilteredOperations",
+			Handler:    _TransportService_GetFilteredOperations_Handler,
 		},
 		{
 			MethodName: "GetAllGarages",

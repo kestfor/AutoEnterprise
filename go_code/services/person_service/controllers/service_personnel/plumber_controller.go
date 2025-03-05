@@ -5,6 +5,7 @@ import (
 	. "AutoEnterpise/go_code/services/person_service/controllers"
 	"context"
 	"errors"
+	"fmt"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -37,7 +38,7 @@ func (ac *PlumberController) CreateInfo(tx pgx.Tx, ctx context.Context, person *
 	}
 
 	_, err := tx.Exec(ctx,
-		"INSERT INTO plumber (person_id, specialization, certification, safety_training, brigade_id) VALUES ($1)",
+		"INSERT INTO plumber (person_id, specialization, certification, safety_training, brigade_id) VALUES ($1, $2, $3, $4, $5)",
 		person.GetId(), plumberInfo.Specialization, plumberInfo.Certification, plumberInfo.SafetyTraining, plumberInfo.BrigadeId)
 	return err
 }
@@ -110,6 +111,7 @@ func (ac *PlumberController) selectQuery() string {
 
 func (ac *PlumberController) Filtered(ctx context.Context, filter *pb.PersonFilter) ([]*pb.Person, error) {
 	query, args := BrigadeIdFilter(ac.selectQuery(), filter.BrigadeId)
+	fmt.Println(query)
 	return ac.selectPlumbers(ctx, query, args)
 }
 

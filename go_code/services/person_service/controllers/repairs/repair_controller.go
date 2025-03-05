@@ -83,6 +83,20 @@ func (rc *RepairWorkController) Filtered(ctx context.Context, filter *pb.RepairW
 	query := rc.selectQuery()
 	whereClauses := []string{}
 
+	if filter.TransportBrand != nil || filter.TransportType != nil {
+		query = fmt.Sprintf("%s inner join transport on transport.id = transport_id", query)
+	}
+
+	if filter.TransportBrand != nil {
+		whereClauses = append(whereClauses, "transport.brand = @brand")
+		namedArgs["brand"] = filter.GetTransportBrand()
+	}
+
+	if filter.TransportType != nil {
+		whereClauses = append(whereClauses, "transport.type = @type")
+		namedArgs["type"] = filter.GetTransportType()
+	}
+
 	if filter.TransportId != nil {
 		whereClauses = append(whereClauses, fmt.Sprintf("transport_id = @transport_id"))
 		namedArgs["transport_id"] = filter.GetTransportId()

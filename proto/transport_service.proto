@@ -122,6 +122,11 @@ message GetRouteByTransportIdRequest {
   int32 transportId = 1;
 }
 
+message OperationFilter {
+  google.protobuf.Timestamp dateFrom = 1;
+  google.protobuf.Timestamp dateTo = 2;
+}
+
 
 service TransportService {
   rpc CreateRoute(Route) returns (Route) {}
@@ -134,6 +139,7 @@ service TransportService {
   rpc GetAllOperations(google.protobuf.Empty) returns (TransportOperationList) {}
   rpc CreateOperation(TransportOperation) returns (TransportOperation) {}
   rpc AlterOperation(TransportOperation) returns (TransportOperation) {}
+  rpc GetFilteredOperations(OperationFilter) returns (TransportOperationList) {}
 
 
   rpc GetAllGarages(google.protobuf.Empty) returns (GarageFacilityList) {}

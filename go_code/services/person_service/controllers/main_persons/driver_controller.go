@@ -22,7 +22,7 @@ type DriverController struct {
 	Fields DriverFields
 }
 
-func NewDriverController(DBPool *pgxpool.Pool) Controller {
+func NewDriverController(DBPool *pgxpool.Pool) *DriverController {
 	return &DriverController{PersonController{DBPool: DBPool}, DriverFields{}}
 }
 
@@ -113,6 +113,16 @@ func (d *DriverController) CreateInfo(tx pgx.Tx, ctx context.Context, person *pb
 		"INSERT INTO driver (person_id, transport_id, brigade_id)  VALUES ($1, $2, $3)",
 		person.Id, driverInfo.TransportId, driverInfo.BrigadeId)
 	return err
+}
+
+func (d *DriverController) GetByTransportId(ctx context.Context, transportId int32) ([]*pb.Person, error) {
+	args := pgx.NamedArgs{"transport_id": transportId}
+	query := d.selectQuery() + " WHERE transport_id = @transport_id"
+	persons, err := d.selectDrivers(ctx, query, args)
+	if err != nil {
+		return nil, err
+	}
+	return persons, nil
 }
 
 func (d *DriverController) Create(ctx context.Context, person *pb.Person) error {

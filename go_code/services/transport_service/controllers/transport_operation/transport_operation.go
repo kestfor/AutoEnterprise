@@ -7,6 +7,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"strings"
 )
 
 type TransportOperationController struct {
@@ -17,8 +18,9 @@ func NewTransportOperationController(dbpool *pgxpool.Pool) *TransportOperationCo
 	return &TransportOperationController{dbpool: dbpool}
 }
 
-func (bc *TransportOperationController) All(ctx context.Context) ([]*pb.TransportOperation, error) {
-	rows, err := bc.dbpool.Query(ctx, "SELECT id, type, date, description, transport_id from transport_operation")
+func (bc *TransportOperationController) selectOperations(ctx context.Context, query string, args ...any) ([]*pb.TransportOperation, error) {
+
+	rows, err := bc.dbpool.Query(ctx, query, args...)
 
 	if err != nil {
 		return nil, err
@@ -50,7 +52,38 @@ func (bc *TransportOperationController) All(ctx context.Context) ([]*pb.Transpor
 		transportOperations = append(transportOperations, newTO)
 		return nil
 	})
+
 	return transportOperations, err
+}
+
+func (bc *TransportOperationController) selectQuery() string {
+	return "SELECT id, type, date, description, transport_id from transport_operation"
+}
+
+func (bc *TransportOperationController) All(ctx context.Context) ([]*pb.TransportOperation, error) {
+	return bc.selectOperations(ctx, bc.selectQuery())
+}
+
+func (bc *TransportOperationController) Filtered(ctx context.Context, filter *pb.OperationFilter) ([]*pb.TransportOperation, error) {
+	args := pgx.NamedArgs{}
+	whereClauses := make([]string, 0)
+
+	if filter.DateFrom != nil {
+		args["date_from"] = filter.DateFrom.AsTime()
+		whereClauses = append(whereClauses, "trip.start_time >= @date_from")
+	}
+
+	if filter.DateTo != nil {
+		args["date_to"] = filter.DateTo.AsTime()
+		whereClauses = append(whereClauses, "trip.end_time <= @date_to")
+	}
+
+	query := bc.selectQuery()
+
+	if len(whereClauses) > 0 {
+		query += " WHERE " + strings.Join(whereClauses, " AND ")
+	}
+	return bc.selectOperations(ctx, query, args)
 }
 
 func (bc *TransportOperationController) Create(ctx context.Context, transportOperation *pb.TransportOperation) error {

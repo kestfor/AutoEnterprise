@@ -1,0 +1,20 @@
+syntax = "proto3";
+package main;
+option go_package = ".";
+import "google/protobuf/timestamp.proto";
+
+
+message CarMileageRequest {
+  optional string category = 1;
+  optional string transportId = 2;
+  google.protobuf.Timestamp dateFrom = 3;
+  google.protobuf.Timestamp dateTo = 4;
+}
+
+message RepairCostRequest {
+  optional string category = 1;
+  optional string brand = 5;
+  optional string transportId = 2;
+  google.protobuf.Timestamp dateFrom = 3;
+  google.protobuf.Timestamp dateTo = 4;
+}

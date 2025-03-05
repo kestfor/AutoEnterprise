@@ -30,7 +30,7 @@ func (ac *WelderController) Create(ctx context.Context, person *pb.Person) error
 	return ac.PersonController.CreateWrapper(ac, ctx, person)
 }
 
-func (ac *WelderController) createInfo(tx pgx.Tx, ctx context.Context, person *pb.Person) error {
+func (ac *WelderController) CreateInfo(tx pgx.Tx, ctx context.Context, person *pb.Person) error {
 	welderInfo := person.GetWelderInfo()
 	if welderInfo == nil {
 		return errors.New("no welder info was found")

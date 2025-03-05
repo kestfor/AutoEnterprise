@@ -53,7 +53,7 @@ func (ac *AssemblerController) AlterInfo(tx pgx.Tx, ctx context.Context, person 
 	}
 
 	_, err := tx.Exec(ctx,
-		"UPDATE assembler SET experience_years=$1, specialization=$2, certification=$3, brigade_id=$4 WHERE person_id=$1",
+		"UPDATE assembler SET experience_years=$2, specialization=$3, certification=$4, brigade_id=$5 WHERE person_id=$1",
 		person.GetId(), assemblerInfo.ExperienceYears, assemblerInfo.Specialization, assemblerInfo.Certification, assemblerInfo.BrigadeId)
 	return err
 }

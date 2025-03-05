@@ -4,6 +4,7 @@ import (
 	pb "AutoEnterpise/go_code/generated/transport"
 	"AutoEnterpise/go_code/services/transport_service/fabric"
 	"context"
+	"fmt"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -18,7 +19,7 @@ func NewRoutesController(DBPool *pgxpool.Pool) *RoutesController {
 	return &RoutesController{DBPool: DBPool}
 }
 
-func (rc *RoutesController) addTransports(ctx context.Context, routeId int32, transports []int32) error {
+func (rc *RoutesController) addTransports(ctx context.Context, tx pgx.Tx, routeId int32, transports []int32) error {
 	if len(transports) == 0 {
 		return nil
 	}
@@ -27,7 +28,7 @@ func (rc *RoutesController) addTransports(ctx context.Context, routeId int32, tr
 	for _, r := range transports {
 		batch.Queue("INSERT INTO transport_on_route (route_id, transport_id) VALUES ($1, $2)", routeId, r)
 	}
-	br := rc.DBPool.SendBatch(ctx, batch)
+	br := tx.SendBatch(ctx, batch)
 	defer br.Close()
 	for i := 0; i < len(transports); i++ {
 		_, err := br.Exec()
@@ -52,7 +53,7 @@ func (rc *RoutesController) Create(ctx context.Context, route *pb.Route) (*pb.Ro
 		}
 	}()
 
-	err = tx.QueryRow(context.Background(), "SELECT nextval('route_id_seq')").Scan(&route.Id)
+	err = tx.QueryRow(context.Background(), "insert into route (name) values ($1) returning id", route.Name).Scan(&route.Id)
 	if err != nil {
 		log.Println("Error in getting nextval")
 		return nil, err
@@ -63,7 +64,7 @@ func (rc *RoutesController) Create(ctx context.Context, route *pb.Route) (*pb.Ro
 		ids = append(ids, *t.Id)
 	}
 
-	err = rc.addTransports(ctx, *route.Id, ids)
+	err = rc.addTransports(ctx, tx, *route.Id, ids)
 
 	if err != nil {
 		return nil, err
@@ -96,7 +97,9 @@ func (rc *RoutesController) AddTransportToRoute(ctx context.Context, mr *pb.Modi
 		}
 	}()
 
-	err = rc.addTransports(ctx, mr.Id, mr.TransportId)
+	fmt.Println(mr)
+
+	err = rc.addTransports(ctx, tx, mr.Id, mr.TransportId)
 
 	if err != nil {
 		return err

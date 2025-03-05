@@ -14,7 +14,6 @@ type CargoTripFields struct {
 	CargoType   pgtype.Text
 	CargoCost   pgtype.Float4
 	CargoWeight pgtype.Float4
-	Distance    pgtype.Float4
 }
 
 type CargoTripController struct {
@@ -28,7 +27,7 @@ func NewCargoTripController(DBPool *pgxpool.Pool) Controller {
 
 func (d *CargoTripController) GetFields() []any {
 	trip := d.TripController.GetFields()
-	return append(trip, &d.Fields.CargoName, &d.Fields.CargoType, &d.Fields.CargoCost, &d.Fields.CargoWeight, &d.Fields.Distance)
+	return append(trip, &d.Fields.CargoName, &d.Fields.CargoType, &d.Fields.CargoCost, &d.Fields.CargoWeight)
 }
 
 func (d *CargoTripController) selectCargoTrips(ctx context.Context, query string, args ...any) ([]*Trip, error) {
@@ -61,10 +60,6 @@ func (d *CargoTripController) selectCargoTrips(ctx context.Context, query string
 			tripInfo.CargoWeight = d.Fields.CargoWeight.Float32
 		}
 
-		if d.Fields.Distance.Valid {
-			tripInfo.Distance = d.Fields.Distance.Float32
-		}
-
 		newTrip.TripInfo = &Trip_Cargo{Cargo: tripInfo}
 		trips = append(trips, newTrip)
 		return nil
@@ -74,7 +69,7 @@ func (d *CargoTripController) selectCargoTrips(ctx context.Context, query string
 
 func (d *CargoTripController) selectQuery() string {
 	return "select " + d.TripController.Fields.ToStringSelect() +
-		", trip_info_cargo.cargo_name, trip_info_cargo.cargo_type, trip_info_cargo.cargo_cost, trip_info_cargo.cargo_weight, trip_info_cargo.distance from trip right join trip_info_cargo on trip.id = trip_info_cargo.trip_id"
+		", trip_info_cargo.cargo_name, trip_info_cargo.cargo_type, trip_info_cargo.cargo_cost, trip_info_cargo.cargo_weight from trip right join trip_info_cargo on trip.id = trip_info_cargo.trip_id"
 }
 
 func (d *CargoTripController) All(ctx context.Context) ([]*Trip, error) {
@@ -82,7 +77,9 @@ func (d *CargoTripController) All(ctx context.Context) ([]*Trip, error) {
 }
 
 func (d *CargoTripController) Filtered(ctx context.Context, filter *TripFilter) ([]*Trip, error) {
-	return d.selectCargoTrips(ctx, d.selectQuery())
+	q, a := DefaultFilter(d.selectQuery(), filter)
+
+	return d.selectCargoTrips(ctx, q, a)
 }
 
 func (d *CargoTripController) CreateInfo(tx pgx.Tx, ctx context.Context, trip *Trip) error {
@@ -91,8 +88,8 @@ func (d *CargoTripController) CreateInfo(tx pgx.Tx, ctx context.Context, trip *T
 		return errors.New("cargo info is required")
 	}
 	_, err := tx.Exec(ctx,
-		"INSERT INTO trip_info_cargo (trip_id, cargo_name, cargo_cost, cargo_type, cargo_weight, distance, type)  VALUES ($1, $2, $3, $4, $5, $6, $7)",
-		trip.Id, tripInfo.CargoName, tripInfo.CargoCost, tripInfo.CargoType, tripInfo.CargoWeight, tripInfo.Distance, trip.Type)
+		"INSERT INTO trip_info_cargo (trip_id, cargo_name, cargo_cost, cargo_type, cargo_weight, type)  VALUES ($1, $2, $3, $4, $5, $6)",
+		trip.Id, tripInfo.CargoName, tripInfo.CargoCost, tripInfo.CargoType, tripInfo.CargoWeight, trip.Type)
 	return err
 }
 
@@ -102,8 +99,8 @@ func (d *CargoTripController) AlterInfo(tx pgx.Tx, ctx context.Context, trip *Tr
 		return errors.New("cargo info is required")
 	}
 	_, err := tx.Exec(ctx,
-		"UPDATE trip_info_cargo SET cargo_name=$1, cargo_cost=$2, cargo_type=$3, cargo_weight=$4, distance=$5, type=$6 WHERE trip_id=$7",
-		tripInfo.CargoName, tripInfo.CargoCost, tripInfo.CargoType, tripInfo.CargoWeight, tripInfo.Distance, trip.Type, trip.Id)
+		"UPDATE trip_info_cargo SET cargo_name=$1, cargo_cost=$2, cargo_type=$3, cargo_weight=$4, type=$5 WHERE trip_id=$6",
+		tripInfo.CargoName, tripInfo.CargoCost, tripInfo.CargoType, tripInfo.CargoWeight, trip.Type, trip.Id)
 	return err
 }
 

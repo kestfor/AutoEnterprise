@@ -12,8 +12,8 @@ create table transport_operation
 
 create table route
 (
-    id           serial unique not null,
-    name         varchar(255)  not null,
+    id   serial unique not null,
+    name varchar(255)  not null,
     PRIMARY KEY (id)
 );
 
@@ -29,12 +29,13 @@ create table transport_on_route
 create table trip
 (
     id           serial primary key,
-    route_id     int       not null,
-    driver_id    int       not null,
-    transport_id int       not null,
-    start_time   timestamp not null,
-    end_time     timestamp not null,
-    type         trip_type not null,
+    route_id     int            not null,
+    driver_id    int            not null,
+    transport_id int            not null,
+    start_time   timestamp      not null,
+    end_time     timestamp      not null,
+    type         trip_type      not null,
+    distance     DECIMAL(10, 2) null,
     constraint unique_trip unique (id, type),
     foreign key (driver_id) REFERENCES person on delete set null,
     foreign key (transport_id) references transport on delete set null,
@@ -69,21 +70,19 @@ create table trip_info_passenger
 (
     trip_id        int primary key,
     passengers_num int            not null,
-    distance       DECIMAL(10, 2) not null,
     type           trip_type default 'passenger' check ( type = 'passenger'),
     constraint unique_trip_info_passenger unique (trip_id, type),
-    foreign key (trip_id, type) references trip (id, type) on delete set null
+    foreign key (trip_id, type) references trip (id, type) on delete cascade
 );
 
 create table trip_info_cargo
 (
-    trip_id      int primary key,
+    trip_id      int primary key default -1,
     cargo_name   varchar(255)   not null,
     cargo_type   varchar(255)   not null,
     cargo_cost   DECIMAL(10, 2) not null,
     cargo_weight DECIMAL(10, 2) not null,
-    distance     DECIMAL(10, 2) not null,
     type         trip_type default 'cargo' check ( type = 'cargo'),
     constraint unique_trip_info_cargo unique (trip_id, type),
-    foreign key (trip_id, type) references trip (id, type) on delete set null
+    foreign key (trip_id, type) references trip (id, type) on delete cascade
 );

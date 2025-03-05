@@ -80,7 +80,7 @@ func (d *TruckController) AlterInfo(tx pgx.Tx, ctx context.Context, transport *p
 	}
 
 	_, err := tx.Exec(ctx,
-		"UPDATE truck SET cargo_capacity_kg=$1, fuel_consumption=$2, truck_type=$3, year_of_manufacture=$4 WHERE transport_id=$5",
+		"UPDATE truck SET cargo_capacity_kg=$1, fuel_consumption=$2, truck_type=$3, years_of_manufacture=$4 WHERE transport_id=$5",
 		truckInfo.CargoCapacityKg, truckInfo.FuelConsumption, truckInfo.TruckType, truckInfo.YearsOfManufacture, transport.GetId())
 	return err
 }
@@ -91,7 +91,7 @@ func (d *TruckController) CreateInfo(tx pgx.Tx, ctx context.Context, transport *
 		return errors.New("truck info is required")
 	}
 	_, err := tx.Exec(ctx,
-		"INSERT INTO truck (transport_id, cargo_capacity_kg, fuel_consumption, truck_type, year_of_manufacture)  VALUES ($1, $2, $3, $4, $5)",
+		"INSERT INTO truck (transport_id, cargo_capacity_kg, fuel_consumption, truck_type, years_of_manufacture)  VALUES ($1, $2, $3, $4, $5)",
 		transport.Id, truckInfo.CargoCapacityKg, truckInfo.FuelConsumption, truckInfo.TruckType, truckInfo.YearsOfManufacture)
 	return err
 }

@@ -155,8 +155,8 @@ func AddDefaultTransportFilter(query string, filter *pb.TransportFilter) (string
 	}
 
 	if filter.RouteId != nil {
-		query += " left join route on route.transport_id = transport.id"
-		whereClauses = append(whereClauses, "route.id = @route_id")
+		query += " left join transport_on_route on transport_on_route.transport_id = transport.id"
+		whereClauses = append(whereClauses, "transport_on_route.route_id = @route_id")
 		args["route_id"] = filter.GetRouteId()
 	}
 

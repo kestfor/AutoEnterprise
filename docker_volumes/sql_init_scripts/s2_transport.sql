@@ -13,6 +13,7 @@ create table transport
     licence_plate      varchar(20)    not null unique,
     type               transport_type not null,
     garage_facility_id int,
+    brand              varchar(255),
     constraint unique_transport unique (id, type),
     foreign key (garage_facility_id) references garage_facility (id) on delete set null
 );

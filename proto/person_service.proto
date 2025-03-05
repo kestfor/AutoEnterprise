@@ -144,6 +144,9 @@ message RepairWorkFilter {
     google.protobuf.Timestamp dateTo = 2;
   }
 
+
+  optional string transportBrand = 7;
+  optional string transportType = 8;
   repeated RepairState states = 1;
   optional int32 brigadeId = 2;
   optional DateRange dateRange = 3;
