@@ -29,13 +29,15 @@ func (bc *BrigadeController) All(ctx context.Context) ([]*pb.Brigade, error) {
 	var foremanId pgtype.Int4
 	_, err = pgx.ForEachRow(rows, []any{&id, &name, &foremanId}, func() error {
 
+		tmp := id.Int32
 		newBr := &pb.Brigade{
-			Id:   &id.Int32,
+			Id:   &tmp,
 			Name: name.String,
 		}
 
 		if foremanId.Valid {
-			newBr.ForemanId = &foremanId.Int32
+			tmp := foremanId.Int32
+			newBr.ForemanId = &tmp
 		}
 
 		brigs = append(brigs, newBr)

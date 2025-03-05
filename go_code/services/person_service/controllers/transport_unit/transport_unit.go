@@ -40,8 +40,9 @@ func (tuc *TransportUnitController) selectUnits(ctx context.Context, query strin
 	var description pgtype.Text
 	var t pgtype.Text
 	_, err = pgx.ForEachRow(rows, []any{&id, &name, &description, &t}, func() error {
+		tmp := id.Int32
 		newTU := &pb.TransportUnit{
-			Id:   &id.Int32,
+			Id:   &tmp,
 			Name: name.String,
 		}
 

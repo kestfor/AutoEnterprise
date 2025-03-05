@@ -45,15 +45,18 @@ func (c *ForemanController) selectForemen(ctx context.Context, query string, arg
 		personInfo := &pb.ForemanInfo{}
 
 		if c.Fields.MasterId.Valid {
-			personInfo.MasterId = &c.Fields.MasterId.Int32
+			tmp := c.Fields.MasterId.Int32
+			personInfo.MasterId = &tmp
 		}
 
 		if c.Fields.ServiceCenter.Valid {
-			personInfo.ServiceCenter = &c.Fields.ServiceCenter.String
+			tmp := c.Fields.ServiceCenter.String
+			personInfo.ServiceCenter = &tmp
 		}
 
 		if c.Fields.Certification.Valid {
-			personInfo.Certification = &c.Fields.Certification.String
+			tmp := c.Fields.Certification.String
+			personInfo.Certification = &tmp
 		}
 
 		newPerson.PersonInfo = &pb.Person_ForemanInfo{ForemanInfo: personInfo}

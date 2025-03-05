@@ -32,8 +32,9 @@ func (bc *TransportOperationController) All(ctx context.Context) ([]*pb.Transpor
 	var transportId pgtype.Int4
 	_, err = pgx.ForEachRow(rows, []any{&id, &opType, &date, &description, transportId}, func() error {
 
+		var tmp = id.Int32
 		newTO := &pb.TransportOperation{
-			Id:   &id.Int32,
+			Id:   &tmp,
 			Type: opType.String,
 			Date: timestamppb.New(date.Time),
 		}

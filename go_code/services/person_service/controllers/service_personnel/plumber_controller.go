@@ -78,15 +78,18 @@ func (ac *PlumberController) selectPlumbers(ctx context.Context, query string, a
 		personInfo := &pb.PlumberInfo{}
 
 		if ac.Fields.BrigadeId.Valid {
-			personInfo.BrigadeId = &ac.Fields.BrigadeId.Int32
+			tmp := ac.Fields.BrigadeId.Int32
+			personInfo.BrigadeId = &tmp
 		}
 
 		if ac.Fields.Specialization.Valid {
-			personInfo.Specialization = &ac.Fields.Specialization.String
+			tmp := ac.Fields.Specialization.String
+			personInfo.Specialization = &tmp
 		}
 
 		if ac.Fields.Certification.Valid {
-			personInfo.Certification = &ac.Fields.Certification.String
+			tmp := ac.Fields.Certification.String
+			personInfo.Certification = &tmp
 		}
 
 		if ac.Fields.SafetyTraining.Valid {

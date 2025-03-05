@@ -63,15 +63,18 @@ func (pc *TripController) ScanTrip() *Trip {
 		Type:      pc.Fields.Type.String}
 
 	if pc.Fields.RouteId.Valid {
-		trip.RouteId = &pc.Fields.RouteId.Int32
+		tmp := pc.Fields.RouteId.Int32
+		trip.RouteId = &tmp
 	}
 
 	if pc.Fields.DriverId.Valid {
-		trip.DriverId = &pc.Fields.DriverId.Int32
+		tmp := pc.Fields.DriverId.Int32
+		trip.DriverId = &tmp
 	}
 
 	if pc.Fields.TransportId.Valid {
-		trip.TransportId = &pc.Fields.TransportId.Int32
+		tmp := pc.Fields.TransportId.Int32
+		trip.TransportId = &tmp
 	}
 
 	return &trip

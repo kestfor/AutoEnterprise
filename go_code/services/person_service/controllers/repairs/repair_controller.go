@@ -27,18 +27,18 @@ func (rc *RepairWorkController) selectWorks(ctx context.Context, query string, a
 
 	repairs := make([]*pb.RepairWork, 0)
 	var id pgtype.Int4
-	var startTime pgtype.Timestamptz
-	var endTime pgtype.Timestamptz
+	var startTime pgtype.Timestamp
+	var endTime pgtype.Timestamp
 	var transportId pgtype.Int4
 	var servicePersonnelId pgtype.Int4
 	var unitId pgtype.Int4
 	var description pgtype.Text
 	var repairCost pgtype.Float4
 	var state pgtype.Text
-	_, err = pgx.ForEachRow(rows, []any{&id, &startTime, &endTime, transportId, servicePersonnelId, unitId, description, repairCost, state}, func() error {
-
+	_, err = pgx.ForEachRow(rows, []any{&id, &startTime, &endTime, &transportId, &servicePersonnelId, &unitId, &description, &repairCost, &state}, func() error {
+		var tmp = id.Int32
 		newRep := &pb.RepairWork{
-			Id:                 &id.Int32,
+			Id:                 &tmp,
 			StartTime:          timestamppb.New(startTime.Time),
 			State:              state.String,
 			TransportId:        transportId.Int32,
@@ -50,15 +50,18 @@ func (rc *RepairWorkController) selectWorks(ctx context.Context, query string, a
 		}
 
 		if unitId.Valid {
-			newRep.UnitId = &unitId.Int32
+			tmp := unitId.Int32
+			newRep.UnitId = &tmp
 		}
 
 		if description.Valid {
-			newRep.Description = &description.String
+			tmp := description.String
+			newRep.Description = &tmp
 		}
 
 		if repairCost.Valid {
-			newRep.RepairCost = &repairCost.Float32
+			tmp := repairCost.Float32
+			newRep.RepairCost = &tmp
 		}
 
 		repairs = append(repairs, newRep)

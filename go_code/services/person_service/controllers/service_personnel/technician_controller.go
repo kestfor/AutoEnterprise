@@ -77,15 +77,18 @@ func (ac *TechnicianController) selectTechnicians(ctx context.Context, query str
 		personInfo := &pb.TechnicianInfo{}
 
 		if ac.Fields.BrigadeId.Valid {
-			personInfo.BrigadeId = &ac.Fields.BrigadeId.Int32
+			tmp := ac.Fields.BrigadeId.Int32
+			personInfo.BrigadeId = &tmp
 		}
 
 		if ac.Fields.Certification.Valid {
-			personInfo.Certification = &ac.Fields.Certification.String
+			tmp := ac.Fields.Certification.String
+			personInfo.Certification = &tmp
 		}
 
 		if ac.Fields.FieldOfExpertise.Valid {
-			personInfo.FieldOfExpertise = &ac.Fields.FieldOfExpertise.String
+			tmp := ac.Fields.FieldOfExpertise.String
+			personInfo.FieldOfExpertise = &tmp
 		}
 
 		newPerson.PersonInfo = &pb.Person_TechnicianInfo{TechnicianInfo: personInfo}

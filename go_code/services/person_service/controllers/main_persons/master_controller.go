@@ -44,7 +44,8 @@ func (dc *MasterController) selectMasters(ctx context.Context, query string, arg
 		personInfo := &pb.MasterInfo{}
 
 		if dc.Fields.ManagerId.Valid {
-			personInfo.ManagerId = &dc.Fields.ManagerId.Int32
+			tmp := dc.Fields.ManagerId.Int32
+			personInfo.ManagerId = &tmp
 		}
 
 		newPerson.PersonInfo = &pb.Person_MasterInfo{MasterInfo: personInfo}

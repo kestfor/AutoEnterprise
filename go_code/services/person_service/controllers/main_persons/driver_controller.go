@@ -46,11 +46,13 @@ func (d *DriverController) selectDrivers(ctx context.Context, query string, args
 		personInfo := &pb.DriverInfo{}
 
 		if d.Fields.TransportId.Valid {
-			personInfo.TransportId = &d.Fields.TransportId.Int32
+			tmp := d.Fields.TransportId.Int32
+			personInfo.TransportId = &tmp
 		}
 
 		if d.Fields.BrigadeId.Valid {
-			personInfo.BrigadeId = &d.Fields.BrigadeId.Int32
+			tmp := d.Fields.BrigadeId.Int32
+			personInfo.BrigadeId = &tmp
 		}
 
 		newPerson.PersonInfo = &pb.Person_DriverInfo{DriverInfo: personInfo}

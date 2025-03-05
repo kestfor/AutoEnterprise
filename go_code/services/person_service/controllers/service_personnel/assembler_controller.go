@@ -78,7 +78,8 @@ func (ac *AssemblerController) selectAssemblers(ctx context.Context, query strin
 		personInfo := &pb.AssemblerInfo{}
 
 		if ac.Fields.BrigadeId.Valid {
-			personInfo.BrigadeId = &ac.Fields.BrigadeId.Int32
+			tmp := ac.Fields.BrigadeId.Int32
+			personInfo.BrigadeId = &tmp
 		}
 
 		if ac.Fields.ExperienceYears.Valid {
@@ -86,11 +87,13 @@ func (ac *AssemblerController) selectAssemblers(ctx context.Context, query strin
 		}
 
 		if ac.Fields.Specialization.Valid {
-			personInfo.Specialization = &ac.Fields.Specialization.String
+			tmp := ac.Fields.Specialization.String
+			personInfo.Specialization = &tmp
 		}
 
 		if ac.Fields.Certification.Valid {
-			personInfo.Certification = &ac.Fields.Certification.String
+			tmp := ac.Fields.Certification.String
+			personInfo.Certification = &tmp
 		}
 
 		newPerson.PersonInfo = &pb.Person_AssemblerInfo{AssemblerInfo: personInfo}

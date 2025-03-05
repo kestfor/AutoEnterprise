@@ -60,7 +60,7 @@ func (d *TruckController) selectTrucks(ctx context.Context, query string, args .
 
 func (d *TruckController) selectQuery() string {
 	return "select " + d.TransportController.Fields.ToStringSelect() +
-		", truck.cargo_capacity_kg, truck.fuel_consumption, truck.truck_type, truck.year_of_manufacture from transport right join truck on transport.id = truck.transport_id"
+		", truck.cargo_capacity_kg, truck.fuel_consumption, truck.truck_type, truck.years_of_manufacture from transport right join truck on transport.id = truck.transport_id"
 }
 
 func (d *TruckController) All(ctx context.Context) ([]*pb.Transport, error) {

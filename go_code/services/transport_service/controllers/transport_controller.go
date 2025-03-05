@@ -106,14 +106,15 @@ func (pc *TransportController) AlterBasic(tx pgx.Tx, ctx context.Context, transp
 }
 
 func (pc *TransportController) ScanTransport() *pb.Transport {
-	var id int32 = pc.Fields.ID.Int32
+	var id = pc.Fields.ID.Int32
+	var garageFacility = pc.Fields.GarageFacilityId.Int32
 
 	newTransport := &pb.Transport{
 		Id:               &id,
 		Name:             pc.Fields.Name.String,
 		LicensePlate:     pc.Fields.LicensePlate.String,
 		Type:             pc.Fields.Type.String,
-		GarageFacilityId: &pc.Fields.GarageFacilityId.Int32,
+		GarageFacilityId: &garageFacility,
 	}
 
 	return newTransport

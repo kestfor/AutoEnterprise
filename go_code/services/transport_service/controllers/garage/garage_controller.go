@@ -30,8 +30,9 @@ func (bc *GarageFacilityController) All(ctx context.Context) ([]*pb.GarageFacili
 	var address pgtype.Text
 	_, err = pgx.ForEachRow(rows, []any{&id, &name, &facilityType, &address}, func() error {
 
+		var tmp int32 = id.Int32
 		newGar := &pb.GarageFacility{
-			Id:      &id.Int32,
+			Id:      &tmp,
 			Name:    name.String,
 			Type:    facilityType.String,
 			Address: address.String,

@@ -78,15 +78,18 @@ func (ac *WelderController) selectWelders(ctx context.Context, query string, arg
 		personInfo := &pb.WelderInfo{}
 
 		if ac.Fields.BrigadeId.Valid {
-			personInfo.BrigadeId = &ac.Fields.BrigadeId.Int32
+			tmp := ac.Fields.BrigadeId.Int32
+			personInfo.BrigadeId = &tmp
 		}
 
 		if ac.Fields.Certification.Valid {
-			personInfo.Certification = &ac.Fields.Certification.String
+			tmp := ac.Fields.Certification.String
+			personInfo.Certification = &tmp
 		}
 
 		if ac.Fields.WeldingType.Valid {
-			personInfo.WeldingType = &ac.Fields.WeldingType.String
+			tmp := ac.Fields.WeldingType.String
+			personInfo.WeldingType = &tmp
 		}
 
 		if ac.Fields.SafetyTraining.Valid {
