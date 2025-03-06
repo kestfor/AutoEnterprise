@@ -34,15 +34,15 @@ func (r *ReportController) GetCarMileage(ctx context.Context, req *CarMileageReq
 	}
 
 	var query string
-	var result float64
+	var result pgtype.Float8
 	if req.TransportId != nil {
-		query = "select sum(distance) from trip inner join transport on trip.transport_id = transport.id where transport.id = $1 and trip.start_time >= $2 and trip.end_time <= $3"
+		query = "select SUM(COALESCE(distance, 0)) from trip inner join transport on trip.transport_id = transport.id where transport.id = $1 and trip.start_time >= $2 and trip.end_time <= $3"
 		err := r.DBPool.QueryRow(ctx, query, req.TransportId, fst, fet).Scan(&result)
-		return result, err
+		return result.Float64, err
 	} else if req.Category != nil {
-		query = "select sum(distance) from trip inner join public.transport on trip.transport_id = transport.id where transport.type = $1 and trip.start_time >= $2 and trip.end_time <= $3"
+		query = "select SUM(COALESCE(distance, 0)) from trip inner join public.transport on trip.transport_id = transport.id where transport.type = $1 and trip.start_time >= $2 and trip.end_time <= $3"
 		err := r.DBPool.QueryRow(ctx, query, req.Category, fst, fet).Scan(&result)
-		return result, err
+		return result.Float64, err
 	}
 
 	return 0, errors.New("either transportId or category must be provided")

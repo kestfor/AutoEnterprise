@@ -2,9 +2,11 @@ package main
 
 import (
 	pb_person "AutoEnterpise/go_code/generated/person"
+	pb_report "AutoEnterpise/go_code/generated/report"
 	pb_transport "AutoEnterpise/go_code/generated/transport"
 	pb_trip "AutoEnterpise/go_code/generated/trips"
 	"AutoEnterpise/go_code/services/person_service"
+	"AutoEnterpise/go_code/services/report_service"
 	"AutoEnterpise/go_code/services/transport_service"
 	"AutoEnterpise/go_code/services/trip_service"
 	"AutoEnterpise/go_code/utils"
@@ -54,7 +56,7 @@ func main() {
 	pb_person.RegisterPersonServiceServer(grpcServer, &person_service.PersonService{Dbpool: dbpool})
 	pb_transport.RegisterTransportServiceServer(grpcServer, &transport_service.TransportService{Dbpool: dbpool})
 	pb_trip.RegisterTripsServiceServer(grpcServer, &trip_service.TripService{Dbpool: dbpool})
-
+	pb_report.RegisterReportServiceServer(grpcServer, &report_service.ReportService{Dbpool: dbpool})
 	log.Println("gRPC сервер запущен на :12345")
 
 	if err := grpcServer.Serve(lis); err != nil {

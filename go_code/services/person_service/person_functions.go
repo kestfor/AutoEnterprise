@@ -2,11 +2,21 @@ package person_service
 
 import (
 	pb "AutoEnterpise/go_code/generated/person"
+	"AutoEnterpise/go_code/services/person_service/controllers/main_persons"
 	"AutoEnterpise/go_code/services/person_service/fabric"
 	"context"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"log"
 )
+
+func (t *PersonService) GetDriversByTransport(ctx context.Context, req *pb.DriversRequest) (*pb.PersonList, error) {
+	cnt := main_persons.NewDriverController(t.Dbpool)
+	drivers, err := cnt.GetByTransportId(ctx, req.TransportId)
+	if err != nil {
+		log.Println(err)
+	}
+	return &pb.PersonList{Persons: drivers}, err
+}
 
 func (t *PersonService) GetFilteredPersons(ctx context.Context, filter *pb.PersonFilter) (*pb.PersonList, error) {
 	cnt := fabric.NewPersonControllerFabric(t.Dbpool)

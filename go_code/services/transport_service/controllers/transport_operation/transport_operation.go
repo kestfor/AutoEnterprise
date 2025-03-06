@@ -32,7 +32,7 @@ func (bc *TransportOperationController) selectOperations(ctx context.Context, qu
 	var date pgtype.Date
 	var description pgtype.Text
 	var transportId pgtype.Int4
-	_, err = pgx.ForEachRow(rows, []any{&id, &opType, &date, &description, transportId}, func() error {
+	_, err = pgx.ForEachRow(rows, []any{&id, &opType, &date, &description, &transportId}, func() error {
 
 		var tmp = id.Int32
 		newTO := &pb.TransportOperation{
@@ -42,11 +42,13 @@ func (bc *TransportOperationController) selectOperations(ctx context.Context, qu
 		}
 
 		if transportId.Valid {
-			newTO.TransportId = &transportId.Int32
+			tmp = transportId.Int32
+			newTO.TransportId = &tmp
 		}
 
 		if description.Valid {
-			newTO.Description = &description.String
+			tmp := description.String
+			newTO.Description = &tmp
 		}
 
 		transportOperations = append(transportOperations, newTO)
@@ -94,6 +96,6 @@ func (bc *TransportOperationController) Create(ctx context.Context, transportOpe
 
 func (bc *TransportOperationController) Alter(ctx context.Context, transportOperation *pb.TransportOperation) error {
 	_, err := bc.dbpool.Exec(ctx, "UPDATE transport_operation SET type = $1, date = $2, description=$3, transport_id=$4 WHERE id = $5",
-		transportOperation.Type, transportOperation.Date, transportOperation.Description, transportOperation.TransportId, transportOperation.Id)
+		transportOperation.Type, transportOperation.Date.AsTime(), transportOperation.Description, transportOperation.TransportId, transportOperation.Id)
 	return err
 }

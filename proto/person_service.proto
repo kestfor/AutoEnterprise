@@ -159,6 +159,10 @@ message TransportUnitList {
   repeated TransportUnit units = 1;
 }
 
+message DriversRequest {
+  int32 transportId = 1;
+}
+
 service PersonService {
   rpc CreateTransportUnit(TransportUnit) returns (TransportUnit) {}
   rpc AlterTransportUnit(TransportUnit) returns (TransportUnit) {}
@@ -166,6 +170,8 @@ service PersonService {
 
   rpc GetFilteredPersons(PersonFilter) returns (PersonList) {}
   rpc GetFilteredRepairWorks(PersonFilter) returns (RepairWorkList) {}
+
+  rpc GetDriversByTransport(DriversRequest) returns (PersonList) {}
 
   rpc AlterRepairWork(RepairWork) returns (RepairWork) {}
   rpc CreateRepairWork(RepairWork) returns (RepairWork) {}
