@@ -48,7 +48,7 @@ func (r *ReportController) GetCarMileage(ctx context.Context, req *CarMileageReq
 	return 0, errors.New("either transportId or category must be provided")
 }
 
-func (r *ReportController) GetRepairCosts(ctx context.Context, req *RepairCostRequest) (n int, total float64, err error) {
+func (r *ReportController) GetRepairCosts(ctx context.Context, req *RepairCostRequest) (int, float64, error) {
 	var fst pgtype.Timestamp = pgtype.Timestamp{Valid: false}
 	var fet pgtype.Timestamp = pgtype.Timestamp{Valid: false}
 	if req.DateFrom != nil {
@@ -59,18 +59,20 @@ func (r *ReportController) GetRepairCosts(ctx context.Context, req *RepairCostRe
 	}
 
 	var query string
+	var n int
+	var total pgtype.Float8
 	if req.TransportId != nil {
 		query = "select sum(repair_cost), count(repair_cost) from repair_work where transport_id = $1 and repair_work.start_time >= $2 and repair_work.end_time <= $3"
 		err := r.DBPool.QueryRow(ctx, query, req.TransportId, fst, fet).Scan(&total, &n)
-		return n, total, err
+		return n, total.Float64, err
 	} else if req.Brand != nil {
 		query = "select sum(repair_cost), count(repair_cost) from repair_work inner join public.transport on transport.id = repair_work.transport_id where transport.brand = $1 and repair_work.start_time >= $2 and repair_work.end_time <= $3"
 		err := r.DBPool.QueryRow(ctx, query, req.Brand, fst, fet).Scan(&total, &n)
-		return n, total, err
+		return n, total.Float64, err
 	} else if req.Category != nil {
 		query = "select sum(repair_cost), count(repair_cost) from repair_work inner join public.transport on transport.id = repair_work.transport_id where transport.type = $1 and repair_work.start_time >= $2 and repair_work.end_time <= $3"
 		err := r.DBPool.QueryRow(ctx, query, req.Category, fst, fet).Scan(&total, &n)
-		return n, total, err
+		return n, total.Float64, err
 	}
 
 	return 0, 0, errors.New("either transportId, category or brand must be provided")
