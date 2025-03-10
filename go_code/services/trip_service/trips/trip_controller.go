@@ -207,6 +207,11 @@ func DefaultFilter(initQuery string, filter *TripFilter) (query string, args pgx
 		whereClauses = append(whereClauses, "trip.transport_id = @transport_id")
 	}
 
+	if len(filter.Ids) > 0 {
+		args["ids"] = filter.Ids
+		whereClauses = append(whereClauses, "trip.id = ANY(@ids)")
+	}
+
 	if filter.DateFrom != nil {
 		args["date_from"] = filter.DateFrom.AsTime()
 		whereClauses = append(whereClauses, "trip.start_time >= @date_from")

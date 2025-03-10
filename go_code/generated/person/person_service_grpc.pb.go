@@ -45,7 +45,7 @@ type PersonServiceClient interface {
 	AlterTransportUnit(ctx context.Context, in *TransportUnit, opts ...grpc.CallOption) (*TransportUnit, error)
 	GetAllTransportUnits(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*TransportUnitList, error)
 	GetFilteredPersons(ctx context.Context, in *PersonFilter, opts ...grpc.CallOption) (*PersonList, error)
-	GetFilteredRepairWorks(ctx context.Context, in *PersonFilter, opts ...grpc.CallOption) (*RepairWorkList, error)
+	GetFilteredRepairWorks(ctx context.Context, in *RepairWorkFilter, opts ...grpc.CallOption) (*RepairWorkList, error)
 	GetDriversByTransport(ctx context.Context, in *DriversRequest, opts ...grpc.CallOption) (*PersonList, error)
 	AlterRepairWork(ctx context.Context, in *RepairWork, opts ...grpc.CallOption) (*RepairWork, error)
 	CreateRepairWork(ctx context.Context, in *RepairWork, opts ...grpc.CallOption) (*RepairWork, error)
@@ -106,7 +106,7 @@ func (c *personServiceClient) GetFilteredPersons(ctx context.Context, in *Person
 	return out, nil
 }
 
-func (c *personServiceClient) GetFilteredRepairWorks(ctx context.Context, in *PersonFilter, opts ...grpc.CallOption) (*RepairWorkList, error) {
+func (c *personServiceClient) GetFilteredRepairWorks(ctx context.Context, in *RepairWorkFilter, opts ...grpc.CallOption) (*RepairWorkList, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(RepairWorkList)
 	err := c.cc.Invoke(ctx, PersonService_GetFilteredRepairWorks_FullMethodName, in, out, cOpts...)
@@ -224,7 +224,7 @@ type PersonServiceServer interface {
 	AlterTransportUnit(context.Context, *TransportUnit) (*TransportUnit, error)
 	GetAllTransportUnits(context.Context, *emptypb.Empty) (*TransportUnitList, error)
 	GetFilteredPersons(context.Context, *PersonFilter) (*PersonList, error)
-	GetFilteredRepairWorks(context.Context, *PersonFilter) (*RepairWorkList, error)
+	GetFilteredRepairWorks(context.Context, *RepairWorkFilter) (*RepairWorkList, error)
 	GetDriversByTransport(context.Context, *DriversRequest) (*PersonList, error)
 	AlterRepairWork(context.Context, *RepairWork) (*RepairWork, error)
 	CreateRepairWork(context.Context, *RepairWork) (*RepairWork, error)
@@ -257,7 +257,7 @@ func (UnimplementedPersonServiceServer) GetAllTransportUnits(context.Context, *e
 func (UnimplementedPersonServiceServer) GetFilteredPersons(context.Context, *PersonFilter) (*PersonList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFilteredPersons not implemented")
 }
-func (UnimplementedPersonServiceServer) GetFilteredRepairWorks(context.Context, *PersonFilter) (*RepairWorkList, error) {
+func (UnimplementedPersonServiceServer) GetFilteredRepairWorks(context.Context, *RepairWorkFilter) (*RepairWorkList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFilteredRepairWorks not implemented")
 }
 func (UnimplementedPersonServiceServer) GetDriversByTransport(context.Context, *DriversRequest) (*PersonList, error) {
@@ -384,7 +384,7 @@ func _PersonService_GetFilteredPersons_Handler(srv interface{}, ctx context.Cont
 }
 
 func _PersonService_GetFilteredRepairWorks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PersonFilter)
+	in := new(RepairWorkFilter)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -396,7 +396,7 @@ func _PersonService_GetFilteredRepairWorks_Handler(srv interface{}, ctx context.
 		FullMethod: PersonService_GetFilteredRepairWorks_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PersonServiceServer).GetFilteredRepairWorks(ctx, req.(*PersonFilter))
+		return srv.(PersonServiceServer).GetFilteredRepairWorks(ctx, req.(*RepairWorkFilter))
 	}
 	return interceptor(ctx, in, info, handler)
 }

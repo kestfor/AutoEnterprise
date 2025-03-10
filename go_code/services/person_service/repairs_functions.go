@@ -20,6 +20,18 @@ func (t *PersonService) GetAllRepairWorks(ctx context.Context, _ *emptypb.Empty)
 	}
 }
 
+func (t *PersonService) GetFilteredRepairWorks(ctx context.Context, req *pb.RepairWorkFilter) (*pb.RepairWorkList, error) {
+	cnt := NewRepairWorkController(t.Dbpool)
+	rep, err := cnt.Filtered(ctx, req)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	} else {
+		log.Printf("got %d rep", len(rep))
+		return &pb.RepairWorkList{RepairWorks: rep}, nil
+	}
+}
+
 func (t *PersonService) CreateRepairWork(ctx context.Context, repair *pb.RepairWork) (*pb.RepairWork, error) {
 	cnt := NewRepairWorkController(t.Dbpool)
 	err := cnt.Create(ctx, repair)

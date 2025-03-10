@@ -47,11 +47,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION handle_trip_type_change_change_before()
+CREATE OR REPLACE FUNCTION handle_trip_type_change_before()
     RETURNS TRIGGER AS
 $$
 DECLARE
-    table_name_for_delete text := 'trip_info_' + OLD.type;
+    table_name_for_delete text := 'trip_info_' || (cast(OLD.type as text));
 BEGIN
     EXECUTE format('DELETE FROM %I WHERE trip_id = $1', table_name_for_delete)
         USING OLD.id;
@@ -59,11 +59,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION handle_trip_type_change_change_after()
+CREATE OR REPLACE FUNCTION handle_trip_type_change_after()
     RETURNS TRIGGER AS
 $$
 DECLARE
-    table_name Text := 'trip_info_' + NEW.type;
+    table_name Text := 'trip_info_' || (cast(OLD.type as text));
 BEGIN
     EXECUTE format('INSERT INTO %I (trip_id, type) VALUES ($1, $2)', table_name)
         USING NEW.id, New.type;
@@ -105,11 +105,11 @@ CREATE TRIGGER trip_type_change_trigger_before
     ON trip
     FOR EACH ROW
     WHEN (OLD.type IS DISTINCT FROM NEW.type)
-EXECUTE FUNCTION handle_trip_type_change_change_before();
+EXECUTE FUNCTION handle_trip_type_change_before();
 
 CREATE TRIGGER trip_type_change_trigger_after
     after UPDATE OF type
     ON trip
     FOR EACH ROW
     WHEN (OLD.type IS DISTINCT FROM NEW.type)
-EXECUTE FUNCTION handle_trip_type_change_change_after();
+EXECUTE FUNCTION handle_trip_type_change_after();

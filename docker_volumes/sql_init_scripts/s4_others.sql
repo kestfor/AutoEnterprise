@@ -69,7 +69,7 @@ create table repair_work
 create table trip_info_passenger
 (
     trip_id        int primary key,
-    passengers_num int            not null,
+    passengers_num int,
     type           trip_type default 'passenger' check ( type = 'passenger'),
     constraint unique_trip_info_passenger unique (trip_id, type),
     foreign key (trip_id, type) references trip (id, type) on delete cascade
@@ -78,11 +78,11 @@ create table trip_info_passenger
 create table trip_info_cargo
 (
     trip_id      int primary key default -1,
-    cargo_name   varchar(255)   not null,
-    cargo_type   varchar(255)   not null,
-    cargo_cost   DECIMAL(10, 2) not null,
-    cargo_weight DECIMAL(10, 2) not null,
-    type         trip_type default 'cargo' check ( type = 'cargo'),
+    cargo_name   varchar(255),
+    cargo_type   varchar(255),
+    cargo_cost   DECIMAL(10, 2),
+    cargo_weight DECIMAL(10, 2),
+    type         trip_type       default 'cargo' check ( type = 'cargo'),
     constraint unique_trip_info_cargo unique (trip_id, type),
     foreign key (trip_id, type) references trip (id, type) on delete cascade
 );

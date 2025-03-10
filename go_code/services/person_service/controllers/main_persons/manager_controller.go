@@ -3,8 +3,10 @@ package main_persons
 import (
 	pb "AutoEnterpise/go_code/generated/person"
 	. "AutoEnterpise/go_code/services/person_service/controllers"
+	"AutoEnterpise/go_code/utils"
 	"context"
 	"errors"
+	"fmt"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -68,7 +70,15 @@ func (dc *ManagerController) All(ctx context.Context) ([]*pb.Person, error) {
 }
 
 func (dc *ManagerController) Filtered(ctx context.Context, filter *pb.PersonFilter) ([]*pb.Person, error) {
-	return dc.selectManagers(ctx, dc.selectQuery())
+
+	where := []string{}
+	args := pgx.NamedArgs{}
+	where, args = IdFilter(where, filter.Ids, args)
+	query := dc.selectQuery()
+	if len(where) > 0 {
+		query += " WHERE " + fmt.Sprintf("%s", utils.JoinStrings(where, " AND "))
+	}
+	return dc.selectManagers(ctx, query, args)
 }
 
 func (mc *ManagerController) CreateInfo(tx pgx.Tx, ctx context.Context, person *pb.Person) error {

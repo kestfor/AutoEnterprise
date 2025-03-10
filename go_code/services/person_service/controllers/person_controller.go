@@ -174,12 +174,21 @@ func (dc *PersonController) Filtered(ctx context.Context, filter *pb.PersonFilte
 	return make([]*pb.Person, 0), nil
 }
 
-func BrigadeIdFilter(query string, brigadeId *int32) (string, pgx.NamedArgs) {
+func BrigadeIdFilter(whereClauses []string, brigadeId *int32) ([]string, pgx.NamedArgs) {
 	if brigadeId == nil {
-		return query, pgx.NamedArgs{}
+		return []string{}, pgx.NamedArgs{}
 	}
 	args := pgx.NamedArgs{
 		"brigade_id": *brigadeId,
 	}
-	return query + " where brigade_id = @brigade_id", args
+	whereClauses = append(whereClauses, "brigade_id = @brigade_id")
+	return whereClauses, args
+}
+
+func IdFilter(whereClauses []string, ids []int32, args pgx.NamedArgs) ([]string, pgx.NamedArgs) {
+	if len(ids) > 0 {
+		whereClauses = append(whereClauses, "person.id = ANY(@ids)")
+		args["ids"] = ids
+	}
+	return whereClauses, args
 }

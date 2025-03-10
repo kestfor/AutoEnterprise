@@ -20,6 +20,18 @@ func (t *TransportService) GetAllOperations(ctx context.Context, _ *emptypb.Empt
 	}
 }
 
+func (t *TransportService) GetFilteredOperations(ctx context.Context, filter *pb.OperationFilter) (*pb.TransportOperationList, error) {
+	cnt := NewTransportOperationController(t.Dbpool)
+	ops, err := cnt.Filtered(ctx, filter)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	} else {
+		log.Printf("got %d ops", len(ops))
+		return &pb.TransportOperationList{Operations: ops}, nil
+	}
+}
+
 func (t *TransportService) CreateOperation(ctx context.Context, operation *pb.TransportOperation) (*pb.TransportOperation, error) {
 	cnt := NewTransportOperationController(t.Dbpool)
 	err := cnt.Create(ctx, operation)

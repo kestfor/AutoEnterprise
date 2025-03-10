@@ -17,7 +17,7 @@ enum Role {
 
 enum RepairState {
   in_progress = 0;
-  completed = 1;
+  finished = 1;
   not_started = 2;
 }
 
@@ -135,6 +135,7 @@ message RepairWorkList {
 message PersonFilter {
   repeated Role roles = 1;
   optional int32 brigadeId = 2;
+  repeated int32 ids = 3;
 
 }
 
@@ -153,6 +154,7 @@ message RepairWorkFilter {
   optional int32 transportId = 4;
   optional int32 servicePersonnelId = 5;
   optional int32 unitId = 6;
+  repeated int32 ids = 9;
 }
 
 message TransportUnitList {
@@ -169,7 +171,7 @@ service PersonService {
   rpc GetAllTransportUnits(google.protobuf.Empty) returns (TransportUnitList) {}
 
   rpc GetFilteredPersons(PersonFilter) returns (PersonList) {}
-  rpc GetFilteredRepairWorks(PersonFilter) returns (RepairWorkList) {}
+  rpc GetFilteredRepairWorks(RepairWorkFilter) returns (RepairWorkList) {}
 
   rpc GetDriversByTransport(DriversRequest) returns (PersonList) {}
 

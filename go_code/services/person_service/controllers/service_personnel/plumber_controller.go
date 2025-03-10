@@ -3,6 +3,7 @@ package service_personnel
 import (
 	pb "AutoEnterpise/go_code/generated/person"
 	. "AutoEnterpise/go_code/services/person_service/controllers"
+	"AutoEnterpise/go_code/utils"
 	"context"
 	"errors"
 	"fmt"
@@ -110,8 +111,13 @@ func (ac *PlumberController) selectQuery() string {
 }
 
 func (ac *PlumberController) Filtered(ctx context.Context, filter *pb.PersonFilter) ([]*pb.Person, error) {
-	query, args := BrigadeIdFilter(ac.selectQuery(), filter.BrigadeId)
-	fmt.Println(query)
+	query := ac.selectQuery()
+	var where []string
+	where, args := BrigadeIdFilter(where, filter.BrigadeId)
+	where, args = IdFilter(where, filter.Ids, args)
+	if len(where) > 0 {
+		query += " WHERE " + fmt.Sprintf("%s", utils.JoinStrings(where, " AND "))
+	}
 	return ac.selectPlumbers(ctx, query, args)
 }
 

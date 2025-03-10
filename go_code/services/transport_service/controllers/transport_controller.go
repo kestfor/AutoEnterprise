@@ -154,6 +154,11 @@ func AddDefaultTransportFilter(query string, filter *pb.TransportFilter) (string
 		args["garage_facility_id"] = filter.GetGarageFacilityId()
 	}
 
+	if len(filter.Ids) > 0 {
+		args["ids"] = filter.Ids
+		whereClauses = append(whereClauses, "transport.id = ANY(@ids)")
+	}
+
 	if filter.RouteId != nil {
 		query += " left join transport_on_route on transport_on_route.transport_id = transport.id"
 		whereClauses = append(whereClauses, "transport_on_route.route_id = @route_id")

@@ -34,15 +34,16 @@ func (bc *TransportOperationController) selectOperations(ctx context.Context, qu
 	var transportId pgtype.Int4
 	_, err = pgx.ForEachRow(rows, []any{&id, &opType, &date, &description, &transportId}, func() error {
 
-		var tmp = id.Int32
+		var tmp = new(int32)
+		*tmp = id.Int32
 		newTO := &pb.TransportOperation{
-			Id:   &tmp,
+			Id:   tmp,
 			Type: opType.String,
 			Date: timestamppb.New(date.Time),
 		}
 
 		if transportId.Valid {
-			tmp = transportId.Int32
+			tmp := transportId.Int32
 			newTO.TransportId = &tmp
 		}
 
@@ -72,12 +73,17 @@ func (bc *TransportOperationController) Filtered(ctx context.Context, filter *pb
 
 	if filter.DateFrom != nil {
 		args["date_from"] = filter.DateFrom.AsTime()
-		whereClauses = append(whereClauses, "trip.start_time >= @date_from")
+		whereClauses = append(whereClauses, "transport_operation.start_time >= @date_from")
+	}
+
+	if len(filter.Ids) > 0 {
+		args["ids"] = filter.Ids
+		whereClauses = append(whereClauses, "transport_operation.id = ANY(@ids)")
 	}
 
 	if filter.DateTo != nil {
 		args["date_to"] = filter.DateTo.AsTime()
-		whereClauses = append(whereClauses, "trip.end_time <= @date_to")
+		whereClauses = append(whereClauses, "transport_operation.end_time <= @date_to")
 	}
 
 	query := bc.selectQuery()

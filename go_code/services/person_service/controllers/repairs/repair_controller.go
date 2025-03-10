@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"strings"
 )
 
 type RepairWorkController struct {
@@ -83,6 +84,11 @@ func (rc *RepairWorkController) Filtered(ctx context.Context, filter *pb.RepairW
 	query := rc.selectQuery()
 	whereClauses := []string{}
 
+	if len(filter.Ids) > 0 {
+		namedArgs["ids"] = filter.Ids
+		whereClauses = append(whereClauses, "repair_work.id = ANY(@ids)")
+	}
+
 	if filter.TransportBrand != nil || filter.TransportType != nil {
 		query = fmt.Sprintf("%s inner join transport on transport.id = transport_id", query)
 	}
@@ -125,6 +131,10 @@ func (rc *RepairWorkController) Filtered(ctx context.Context, filter *pb.RepairW
 		}
 		whereClauses = append(whereClauses, "state = ANY(@states)")
 		namedArgs["states"] = states
+	}
+
+	if len(whereClauses) > 0 {
+		query = fmt.Sprintf("%s where %s", query, strings.Join(whereClauses, " and "))
 	}
 
 	return rc.selectWorks(ctx, query, namedArgs)

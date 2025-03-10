@@ -84,6 +84,8 @@ func (d *DriverController) Filtered(ctx context.Context, filter *pb.PersonFilter
 			args["brigade_id"] = *filter.BrigadeId
 		}
 
+		whereClauses, args = IdFilter(whereClauses, filter.Ids, args)
+
 		if len(whereClauses) > 0 {
 			query += " WHERE " + fmt.Sprintf("%s", utils.JoinStrings(whereClauses, " AND "))
 		}

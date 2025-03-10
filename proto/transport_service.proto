@@ -100,6 +100,7 @@ message TransportOperationList {
 message TransportFilter {
   optional int32 routeId = 1;
   optional int32 garageFacilityId = 2;
+  repeated int32 ids = 3;
 }
 
 message ModifyRouteRequest {
@@ -125,6 +126,7 @@ message GetRouteByTransportIdRequest {
 message OperationFilter {
   google.protobuf.Timestamp dateFrom = 1;
   google.protobuf.Timestamp dateTo = 2;
+  repeated int32 ids = 3;
 }
 
 

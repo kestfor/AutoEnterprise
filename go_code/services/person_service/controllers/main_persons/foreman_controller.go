@@ -81,8 +81,17 @@ func (c *ForemanController) Filtered(ctx context.Context, filter *pb.PersonFilte
 	if filter != nil && filter.BrigadeId != nil {
 		query = "SELECT person.id, first_name, last_name, person.role, birth_date, phone_number, email, salary, master_id, service_center, certification from person right join foreman on person.id = foreman.person_id inner join brigade on foreman.person_id = brigade.foreman_id where brigade.id = @brigade_id"
 		args["brigade_id"] = *filter.BrigadeId
+
+		if len(filter.Ids) > 0 {
+			query += " AND person.id = ANY(@ids)"
+			args["ids"] = filter.Ids
+		}
 	} else {
 		query = c.selectQuery()
+		if filter != nil && len(filter.Ids) > 0 {
+			query += " where person.id = ANY(@ids)"
+			args["ids"] = filter.Ids
+		}
 	}
 	return c.selectForemen(ctx, query, args)
 }

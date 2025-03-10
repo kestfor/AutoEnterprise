@@ -45,6 +45,7 @@ message TripFilter {
   optional google.protobuf.Timestamp dateFrom = 4;
   optional google.protobuf.Timestamp dateTo = 5;
   optional string type = 6;
+  repeated int32 ids = 7;
 }
 
 message TripList {
