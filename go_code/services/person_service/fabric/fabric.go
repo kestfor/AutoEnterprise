@@ -100,6 +100,13 @@ func (c *PersonControllerFabric) All(ctx context.Context) ([]*pb.Person, error) 
 
 func (c *PersonControllerFabric) Filtered(ctx context.Context, filter *pb.PersonFilter) ([]*pb.Person, error) {
 	cnts := make([]controllers.Controller, 0, len(c.mapping))
+	if len(filter.GetRoles()) == 0 {
+		for _, cnt := range c.mapping {
+			cnts = append(cnts, cnt)
+		}
+		return c.selectPersons(ctx, filter, cnts)
+	}
+
 	for _, role := range filter.GetRoles() {
 		if cnt, ok := c.mapping[types.Role(role.String())]; !ok {
 			return nil, errors.New("there is no controller for this role: " + role.String())
