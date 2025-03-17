@@ -84,6 +84,10 @@ func (d *DriverController) Filtered(ctx context.Context, filter *pb.PersonFilter
 			args["brigade_id"] = *filter.BrigadeId
 		}
 
+		if filter.GetServicePersonnelFilter() != nil && filter.GetServicePersonnelFilter().ForemanId != nil {
+			query += " LEFT JOIN brigade on driver.brigade_id = brigade.id LEFT JOIN foreman on brigade.foreman_id = foreman.id"
+			whereClauses = append(whereClauses, fmt.Sprintf("%s = @%d", "foreman_id", filter.GetServicePersonnelFilter().GetForemanId()))
+		}
 		whereClauses, args = IdFilter(whereClauses, filter.Ids, args)
 
 		if len(whereClauses) > 0 {

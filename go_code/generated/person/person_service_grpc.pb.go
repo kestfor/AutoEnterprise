@@ -47,6 +47,7 @@ type PersonServiceClient interface {
 	GetFilteredPersons(ctx context.Context, in *PersonFilter, opts ...grpc.CallOption) (*PersonList, error)
 	GetFilteredRepairWorks(ctx context.Context, in *RepairWorkFilter, opts ...grpc.CallOption) (*RepairWorkList, error)
 	GetDriversByTransport(ctx context.Context, in *DriversRequest, opts ...grpc.CallOption) (*PersonList, error)
+	// rpc GetSubordination(google.protobuf.Empty) returns (SubordinationResponse) {}
 	AlterRepairWork(ctx context.Context, in *RepairWork, opts ...grpc.CallOption) (*RepairWork, error)
 	CreateRepairWork(ctx context.Context, in *RepairWork, opts ...grpc.CallOption) (*RepairWork, error)
 	GetAllRepairWorks(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*RepairWorkList, error)
@@ -226,6 +227,7 @@ type PersonServiceServer interface {
 	GetFilteredPersons(context.Context, *PersonFilter) (*PersonList, error)
 	GetFilteredRepairWorks(context.Context, *RepairWorkFilter) (*RepairWorkList, error)
 	GetDriversByTransport(context.Context, *DriversRequest) (*PersonList, error)
+	// rpc GetSubordination(google.protobuf.Empty) returns (SubordinationResponse) {}
 	AlterRepairWork(context.Context, *RepairWork) (*RepairWork, error)
 	CreateRepairWork(context.Context, *RepairWork) (*RepairWork, error)
 	GetAllRepairWorks(context.Context, *emptypb.Empty) (*RepairWorkList, error)

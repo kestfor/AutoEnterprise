@@ -115,6 +115,9 @@ func (ac *TechnicianController) Filtered(ctx context.Context, filter *pb.PersonF
 	var where []string
 	where, args := BrigadeIdFilter(where, filter.BrigadeId)
 	where, args = IdFilter(where, filter.Ids, args)
+	if filter.GetServicePersonnelFilter() != nil {
+		where, args = ServicePersonnelFilter(where, args, filter.GetServicePersonnelFilter().ForemanId)
+	}
 	if len(where) > 0 {
 		query += " WHERE " + fmt.Sprintf("%s", utils.JoinStrings(where, " AND "))
 	}

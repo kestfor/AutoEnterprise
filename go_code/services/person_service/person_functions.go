@@ -25,7 +25,7 @@ func (t *PersonService) GetFilteredPersons(ctx context.Context, filter *pb.Perso
 		log.Println(err)
 		return nil, err
 	} else {
-		log.Printf("got %d persons", len(persons))
+		//log.Printf("got %d persons", len(persons))
 		return &pb.PersonList{Persons: persons}, nil
 	}
 }
@@ -59,3 +59,28 @@ func (t *PersonService) AlterPerson(ctx context.Context, person *pb.Person) (*pb
 	}
 	return person, err
 }
+
+//func (t *PersonService) GetSubordination(ctx context.Context, _ *emptypb.Empty) (*pb.SubordinationResponse, error) {
+//	personCnt := fabric.NewPersonControllerFabric(t.Dbpool)
+//	brigadeCnt := brigade.NewBrigadeController(t.Dbpool)
+//	persons, err := personCnt.AllByRoles(ctx)
+//
+//	if err != nil {
+//		log.Println(err)
+//		return nil, err
+//	}
+//
+//	brigades, err := brigadeCnt.All(ctx)
+//
+//	if err != nil {
+//		log.Println(err)
+//		return nil, err
+//	}
+//
+//	sub := pb.SubordinationResponse{}
+//	managers := []*pb.Employer{}
+//	for mngs := range persons[person.ManagerRole] {
+//
+//	}
+//
+//}

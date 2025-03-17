@@ -3,6 +3,7 @@ package main_persons
 import (
 	pb "AutoEnterpise/go_code/generated/person"
 	. "AutoEnterpise/go_code/services/person_service/controllers"
+	"AutoEnterpise/go_code/utils"
 	"context"
 	"errors"
 	"github.com/jackc/pgx/v5"
@@ -77,22 +78,21 @@ func (c *ForemanController) All(ctx context.Context) ([]*pb.Person, error) {
 func (c *ForemanController) Filtered(ctx context.Context, filter *pb.PersonFilter) ([]*pb.Person, error) {
 
 	args := pgx.NamedArgs{}
-	var query string
-	if filter != nil && filter.BrigadeId != nil {
-		query = "SELECT person.id, first_name, last_name, person.role, birth_date, phone_number, email, salary, master_id, service_center, certification from person right join foreman on person.id = foreman.person_id inner join brigade on foreman.person_id = brigade.foreman_id where brigade.id = @brigade_id"
-		args["brigade_id"] = *filter.BrigadeId
+	whereClauses := []string{}
+	var query = c.selectQuery()
+	if filter != nil {
+		whereClauses, args = BrigadeIdFilter(whereClauses, filter.BrigadeId)
+		whereClauses, args = IdFilter(whereClauses, filter.Ids, args)
 
-		if len(filter.Ids) > 0 {
-			query += " AND person.id = ANY(@ids)"
-			args["ids"] = filter.Ids
+		if filter.GetForemanFilter() != nil {
+			args["master_id"] = filter.GetForemanFilter().GetMasterId()
+			whereClauses = append(whereClauses, "master_id = @master_id")
 		}
-	} else {
-		query = c.selectQuery()
-		if filter != nil && len(filter.Ids) > 0 {
-			query += " where person.id = ANY(@ids)"
-			args["ids"] = filter.Ids
-		}
+
 	}
+
+	query = utils.AddWhereClauses(query, whereClauses)
+
 	return c.selectForemen(ctx, query, args)
 }
 

@@ -98,6 +98,24 @@ func (c *PersonControllerFabric) All(ctx context.Context) ([]*pb.Person, error) 
 	return c.selectPersons(ctx, nil, cnts)
 }
 
+func (c *PersonControllerFabric) AllByRoles(ctx context.Context) (map[types.Role][]*pb.Person, error) {
+	cnts := make([]controllers.Controller, 0, len(c.mapping))
+	for _, cnt := range c.mapping {
+		cnts = append(cnts, cnt)
+	}
+	persons, err := c.selectPersons(ctx, nil, cnts)
+	if err != nil {
+		return nil, err
+	}
+
+	res := make(map[types.Role][]*pb.Person)
+	for _, person := range persons {
+		res[types.Role(person.GetRole())] = append(res[types.Role(person.GetRole())], person)
+	}
+
+	return res, nil
+}
+
 func (c *PersonControllerFabric) Filtered(ctx context.Context, filter *pb.PersonFilter) ([]*pb.Person, error) {
 	cnts := make([]controllers.Controller, 0, len(c.mapping))
 	if len(filter.GetRoles()) == 0 {

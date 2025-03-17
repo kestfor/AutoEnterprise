@@ -17,6 +17,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
 	"net"
+	"runtime"
 )
 
 type MyLogger struct {
@@ -35,6 +36,9 @@ func (l *MyLogger) Log(ctx context.Context, level tracelog.LogLevel, msg string,
 }
 
 func main() {
+	numCPU := runtime.NumCPU()
+	runtime.GOMAXPROCS(numCPU)
+	log.Printf("Используем %d ядер\n", numCPU)
 	config := utils.GetConfig(".env")
 	dsn := config.DSN()
 	pgxConf, err := pgxpool.ParseConfig(dsn)

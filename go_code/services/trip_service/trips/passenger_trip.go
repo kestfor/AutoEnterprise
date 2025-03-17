@@ -84,7 +84,7 @@ func (d *PassengersTripController) AlterInfo(tx pgx.Tx, ctx context.Context, tri
 		return errors.New("cargo info is required")
 	}
 	_, err := tx.Exec(ctx,
-		"UPDATE trip_info_passenger SET passengers_num=$1 WHERE trip_id=$3",
+		"UPDATE trip_info_passenger SET passengers_num=$1 WHERE trip_id=$2",
 		tripInfo.PassengersNum, trip.Id)
 	return err
 }

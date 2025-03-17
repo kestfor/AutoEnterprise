@@ -192,3 +192,14 @@ func IdFilter(whereClauses []string, ids []int32, args pgx.NamedArgs) ([]string,
 	}
 	return whereClauses, args
 }
+
+func ServicePersonnelFilter(whereClauses []string, args pgx.NamedArgs, foremanId *int32) ([]string, pgx.NamedArgs) {
+	if foremanId == nil {
+		return whereClauses, pgx.NamedArgs{}
+	}
+
+	whereClauses = append(whereClauses, "foreman_id = @foreman_id")
+	args["foreman_id"] = *foremanId
+
+	return whereClauses, args
+}

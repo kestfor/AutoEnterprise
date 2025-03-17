@@ -131,12 +131,28 @@ message RepairWorkList {
 }
 
 
+message MasterFilter {
+  optional int32 managerId = 1;
+}
+
+message ForemanFilter {
+  optional int32 masterId = 1;
+}
+
+message ServicePersonnelFilter {
+  optional int32 foremanId = 1;
+}
 
 message PersonFilter {
   repeated Role roles = 1;
   optional int32 brigadeId = 2;
   repeated int32 ids = 3;
 
+  oneof roleBasedFilter {
+    MasterFilter masterFilter = 4;
+    ForemanFilter foremanFilter = 5;
+    ServicePersonnelFilter servicePersonnelFilter = 6;
+  }
 }
 
 message RepairWorkFilter {
@@ -165,6 +181,14 @@ message DriversRequest {
   int32 transportId = 1;
 }
 
+//message Employer {
+//  repeated Person subordinates = 1;
+//}
+//
+//message SubordinationResponse {
+//  repeated Employer employers = 1;
+//}
+
 service PersonService {
   rpc CreateTransportUnit(TransportUnit) returns (TransportUnit) {}
   rpc AlterTransportUnit(TransportUnit) returns (TransportUnit) {}
@@ -175,6 +199,8 @@ service PersonService {
 
   rpc GetDriversByTransport(DriversRequest) returns (PersonList) {}
 
+
+//  rpc GetSubordination(google.protobuf.Empty) returns (SubordinationResponse) {}
   rpc AlterRepairWork(RepairWork) returns (RepairWork) {}
   rpc CreateRepairWork(RepairWork) returns (RepairWork) {}
   rpc GetAllRepairWorks(google.protobuf.Empty) returns (RepairWorkList) {}

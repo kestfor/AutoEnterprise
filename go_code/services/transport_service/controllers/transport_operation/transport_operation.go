@@ -73,7 +73,7 @@ func (bc *TransportOperationController) Filtered(ctx context.Context, filter *pb
 
 	if filter.DateFrom != nil {
 		args["date_from"] = filter.DateFrom.AsTime()
-		whereClauses = append(whereClauses, "transport_operation.start_time >= @date_from")
+		whereClauses = append(whereClauses, "transport_operation.date >= @date_from")
 	}
 
 	if len(filter.Ids) > 0 {
@@ -83,7 +83,7 @@ func (bc *TransportOperationController) Filtered(ctx context.Context, filter *pb
 
 	if filter.DateTo != nil {
 		args["date_to"] = filter.DateTo.AsTime()
-		whereClauses = append(whereClauses, "transport_operation.end_time <= @date_to")
+		whereClauses = append(whereClauses, "transport_operation.date <= @date_to")
 	}
 
 	query := bc.selectQuery()

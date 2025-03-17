@@ -2,6 +2,7 @@ syntax = "proto3";
 package main;
 option go_package = ".";
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
 
 
 message CarMileageRequest {
@@ -20,15 +21,47 @@ message RepairCostRequest {
 }
 
 message CarMileageResponse {
-  float mileage = 1;
+  map<string, float> carMileage = 1;
+}
+
+message RepairCost {
+  string name = 1;
+  float sum = 2;
+  int32 repairNum = 3;
 }
 
 message RepairCostResponse {
-  float cost = 1;
-  int32 numOfRepairs = 2;
+  repeated RepairCost costs = 1;
+}
+
+message DriversDistributionResponse {
+  map<string, string> driversDistribution = 1;
+}
+
+message PassengerTransportDistributionResponse {
+  map<string, string> passengerTransportDistribution = 1;
+}
+
+message Subordination {
+  string person_name = 1;
+  int32 person_id = 2;
+  string role = 4;
+  repeated Subordination subordinates = 3;
+}
+
+message SubordinationResponse {
+  repeated Subordination subordinations = 1;
+}
+
+message TransportByGarageDistributionResponse {
+  map<string, string> mapping = 1;
 }
 
 service ReportService {
+  rpc GetTransportByGarageDistribution(google.protobuf.Empty) returns (TransportByGarageDistributionResponse) {}
+  rpc GetSubordination(google.protobuf.Empty) returns (SubordinationResponse) {}
   rpc GetCarMileage(CarMileageRequest) returns (CarMileageResponse) {}
   rpc GetRepairCost(RepairCostRequest) returns (RepairCostResponse) {}
+  rpc GetDriversDistribution(google.protobuf.Empty) returns (DriversDistributionResponse) {}
+  rpc GetPassengerTransportDistribution(google.protobuf.Empty) returns (PassengerTransportDistributionResponse) {}
 }

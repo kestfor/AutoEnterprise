@@ -6,7 +6,6 @@ import (
 	"AutoEnterpise/go_code/utils"
 	"context"
 	"errors"
-	"fmt"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -70,10 +69,14 @@ func (dc *MasterController) Filtered(ctx context.Context, filter *pb.PersonFilte
 	where := []string{}
 	args := pgx.NamedArgs{}
 	where, args = IdFilter(where, filter.Ids, args)
-	query := dc.selectQuery()
-	if len(where) > 0 {
-		query += " WHERE " + fmt.Sprintf("%s", utils.JoinStrings(where, " AND "))
+
+	if filter.GetMasterFilter() != nil {
+		where = append(where, "manager_id = @manager_id")
+		args["manager_id"] = filter.GetMasterFilter().GetManagerId()
 	}
+
+	query := dc.selectQuery()
+	query = utils.AddWhereClauses(query, where)
 	return dc.selectMasters(ctx, query, args)
 }
 
