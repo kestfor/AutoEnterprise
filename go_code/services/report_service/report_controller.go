@@ -41,7 +41,7 @@ func (r *ReportController) GetCarMileage(ctx context.Context, req *CarMileageReq
 	}
 
 	whereClauses := make([]string, 0)
-	var query = "select transport.name, transport.brand, transport.licence_plate, distance  from trip inner join active_transport as transport on trip.transport_id = transport.id"
+	var query = "select transport.name, transport.brand, transport.licence_plate, distance  from trip inner join transport on trip.transport_id = transport.id"
 	args := pgx.NamedArgs{}
 	if fst.Valid {
 		whereClauses = append(whereClauses, "trip.start_time >= @dateFrom")
