@@ -67,7 +67,6 @@ func (d *TruckController) selectQuery() string {
 func (d *TruckController) modifiedSelectQuery(tableName string) string {
 	q := fmt.Sprintf("select "+d.TransportController.Fields.ToStringSelect()+
 		", truck.cargo_capacity_kg, truck.fuel_consumption, truck.truck_type, truck.years_of_manufacture from %s right join truck on transport.id = truck.transport_id", tableName)
-	fmt.Println(q)
 	return q
 }
 

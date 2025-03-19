@@ -268,26 +268,27 @@ func (r *ReportController) GetSubordination(ctx context.Context, filter *Subordi
 	plug := make(map[int32]*Subordination)
 
 	_, err = pgx.ForEachRow(rows, []any{&servicePersonId, &servicePersonName, &servicePersonRole, &foremanId, &foremanName, &masterId, &masterName, &managerId, &managerName}, func() error {
-		if !managerId.Valid {
-			return nil
-		}
+		var managerSub *Subordination = nil
+		var masterSub *Subordination = nil
+		var foremanSub *Subordination = nil
+		if managerId.Valid {
+			managerSub, ok = managers[managerId.Int32]
 
-		managerSub, ok := managers[managerId.Int32]
-
-		if !ok {
-			managerSub = &Subordination{PersonId: managerId.Int32, PersonName: managerName.String, Subordinates: []*Subordination{}, Role: "manager"}
-			managers[managerId.Int32] = managerSub
+			if !ok {
+				managerSub = &Subordination{PersonId: managerId.Int32, PersonName: managerName.String, Subordinates: []*Subordination{}, Role: "manager"}
+				managers[managerId.Int32] = managerSub
+			}
 		}
 
 		if masterId.Valid || filter != nil {
-			masterSub := processSub(managerSub, masters, masterId.Int32, masterName.String, "master")
-
-			if foremanId.Valid || filter != nil {
-				foremanSub := processSub(masterSub, foremans, foremanId.Int32, foremanName.String, "foreman")
-				processSub(foremanSub, plug, servicePersonId.Int32, servicePersonName.String, servicePersonRole.String)
-			}
+			masterSub = processSub(managerSub, masters, masterId.Int32, masterName.String, "master")
 
 		}
+
+		if foremanId.Valid || filter != nil {
+			foremanSub = processSub(masterSub, foremans, foremanId.Int32, foremanName.String, "foreman")
+		}
+		processSub(foremanSub, plug, servicePersonId.Int32, servicePersonName.String, servicePersonRole.String)
 
 		return nil
 	})
