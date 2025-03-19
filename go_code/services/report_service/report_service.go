@@ -44,9 +44,9 @@ func (rs *ReportService) GetPassengerTransportDistribution(ctx context.Context, 
 	return &pb.PassengerTransportDistributionResponse{PassengerTransportDistribution: transports}, err
 }
 
-func (rs *ReportService) GetSubordination(ctx context.Context, _ *emptypb.Empty) (*pb.SubordinationResponse, error) {
+func (rs *ReportService) GetSubordination(ctx context.Context, in *pb.SubordinationRequest) (*pb.SubordinationResponse, error) {
 	cnt := NewReportController(rs.Dbpool)
-	subs, err := cnt.GetSubordination(ctx)
+	subs, err := cnt.GetSubordination(ctx, in.GetFilter())
 	return &pb.SubordinationResponse{Subordinations: subs}, err
 }
 

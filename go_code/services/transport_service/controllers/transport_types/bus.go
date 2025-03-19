@@ -5,6 +5,7 @@ import (
 	. "AutoEnterpise/go_code/services/transport_service/controllers"
 	"context"
 	"errors"
+	"fmt"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -37,7 +38,6 @@ func (bc *BusController) selectBusses(ctx context.Context, query string, args ..
 
 	transports := make([]*pb.Transport, 0)
 	_, err = pgx.ForEachRow(rows, bc.GetFields(), func() error {
-
 		newTransport := bc.ScanTransport()
 
 		transportInfo := &pb.BusInfo{}
@@ -53,15 +53,21 @@ func (bc *BusController) selectBusses(ctx context.Context, query string, args ..
 
 func (bc *BusController) selectQuery() string {
 	return "select " + bc.TransportController.Fields.ToStringSelect() +
-		", bus.passengers_num from transport right join bus on transport.id = bus.transport_id"
+		", bus.passengers_num from active_transport as transport right join bus on transport.id = bus.transport_id"
+}
+
+func (bc *BusController) modifiedSelectQuery(tableName string) string {
+	return fmt.Sprintf("select "+bc.TransportController.Fields.ToStringSelect()+
+		", bus.passengers_num from %s right join bus on transport.id = bus.transport_id", tableName)
 }
 
 func (d *BusController) All(ctx context.Context) ([]*pb.Transport, error) {
-	return d.selectBusses(ctx, d.selectQuery())
+	q := d.selectQuery() + " where transport.id is not null"
+	return d.selectBusses(ctx, q)
 }
 
 func (d *BusController) Filtered(ctx context.Context, filter *pb.TransportFilter) ([]*pb.Transport, error) {
-	query := d.selectQuery()
+	query := d.modifiedSelectQuery("transport")
 	query, args := AddDefaultTransportFilter(query, filter)
 	return d.selectBusses(ctx, query, args)
 }

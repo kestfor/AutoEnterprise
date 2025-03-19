@@ -95,8 +95,30 @@ func (bc *TransportOperationController) Filtered(ctx context.Context, filter *pb
 }
 
 func (bc *TransportOperationController) Create(ctx context.Context, transportOperation *pb.TransportOperation) error {
-	err := bc.dbpool.QueryRow(ctx, "INSERT INTO transport_operation (type, date, description, transport_id) VALUES ($1, $2, $3, $4) returning id",
+	tx, err := bc.dbpool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if err != nil {
+			tx.Rollback(ctx)
+		} else {
+			tx.Commit(ctx)
+		}
+	}()
+
+	err = tx.QueryRow(ctx, "INSERT INTO transport_operation (type, date, description, transport_id) VALUES ($1, $2, $3, $4) returning id",
 		transportOperation.Type, transportOperation.Date.AsTime(), transportOperation.Description, transportOperation.TransportId).Scan(&transportOperation.Id)
+
+	if err != nil {
+		return err
+	}
+
+	//update transport field
+	if transportOperation.Type == pb.TransportOperationType_sale.String() || transportOperation.Type == pb.TransportOperationType_write_off.String() {
+		_, err = tx.Exec(ctx, "UPDATE transport set active=FALSE where transport.id=$1", transportOperation.GetTransportId())
+	}
 	return err
 }
 

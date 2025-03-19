@@ -57,9 +57,18 @@ message TransportByGarageDistributionResponse {
   map<string, string> mapping = 1;
 }
 
+message SubordinationRequest {
+  message Filter {
+    int32  personId = 1;
+    string personRole = 2;
+  }
+
+  optional Filter filter = 1;
+}
+
 service ReportService {
   rpc GetTransportByGarageDistribution(google.protobuf.Empty) returns (TransportByGarageDistributionResponse) {}
-  rpc GetSubordination(google.protobuf.Empty) returns (SubordinationResponse) {}
+  rpc GetSubordination(SubordinationRequest) returns (SubordinationResponse) {}
   rpc GetCarMileage(CarMileageRequest) returns (CarMileageResponse) {}
   rpc GetRepairCost(RepairCostRequest) returns (RepairCostResponse) {}
   rpc GetDriversDistribution(google.protobuf.Empty) returns (DriversDistributionResponse) {}

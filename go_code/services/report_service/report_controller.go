@@ -4,7 +4,9 @@ import (
 	pb "AutoEnterpise/go_code/generated/person"
 	. "AutoEnterpise/go_code/generated/report"
 	"AutoEnterpise/go_code/services/person_service/controllers/main_persons"
+	"AutoEnterpise/go_code/types/person"
 	"AutoEnterpise/go_code/types/transport"
+	"AutoEnterpise/go_code/utils"
 	"context"
 	"errors"
 	"github.com/jackc/pgx/v5"
@@ -38,19 +40,24 @@ func (r *ReportController) GetCarMileage(ctx context.Context, req *CarMileageReq
 		fet = pgtype.Timestamp{Time: req.DateTo.AsTime(), Valid: true}
 	}
 
-	var query string = "select transport.name, transport.brand, transport.licence_plate, distance  from trip inner join transport on trip.transport_id = transport.id where trip.start_time >= @dateFrom and trip.end_time <= @dateTo"
+	whereClauses := make([]string, 0)
+	var query = "select transport.name, transport.brand, transport.licence_plate, distance  from trip inner join active_transport as transport on trip.transport_id = transport.id"
 	args := pgx.NamedArgs{}
-	args["dateFrom"] = fst
-	args["dateTo"] = fet
+	if fst.Valid {
+		whereClauses = append(whereClauses, "trip.start_time >= @dateFrom")
+		args["dateFrom"] = fst
+	}
+	if fet.Valid {
+		whereClauses = append(whereClauses, "trip.end_time <= @dateTo")
+		args["dateTo"] = fet
+	}
 
 	if req.TransportId != nil {
-		query += " and transport.id = $id"
+		whereClauses = append(whereClauses, "transport.id = @id")
 		args["id"] = req.TransportId
 	} else if req.Category != nil {
-		query += " and transport.type = $type"
+		whereClauses = append(whereClauses, "transport.type = @type")
 		args["type"] = req.Category
-	} else {
-		return nil, errors.New("either transportId or category must be provided")
 	}
 
 	var transportName pgtype.Text
@@ -101,30 +108,37 @@ func (r *ReportController) GetRepairCosts(ctx context.Context, req *RepairCostRe
 		fet = pgtype.Timestamp{Time: req.DateTo.AsTime(), Valid: true}
 	}
 
+	var query = "select transport.id, transport.name, transport.brand, transport.licence_plate, sum(repair_cost), count(repair_cost) from repair_work inner join active_transport as transport on transport.id = repair_work.transport_id"
+	whereClauses := make([]string, 0)
 	args := pgx.NamedArgs{}
-	args["dateFrom"] = fst
-	args["dateTo"] = fet
-	var query = "select transport.name, transport.brand, transport.licence_plate, sum(repair_cost), count(repair_cost) from repair_work inner join transport on transport.id = repair_work.transport_id where repair_work.start_time >= @dateFrom and repair_work.end_time <= @dateTo"
+	if fst.Valid {
+		whereClauses = append(whereClauses, "repair_work.start_time >= @dateFrom")
+		args["dateFrom"] = fst
+	}
+	if fet.Valid {
+		whereClauses = append(whereClauses, "repair_work.end_time <= @dateTo")
+		args["dateTo"] = fet
+	}
 	if req.TransportId != nil {
-		query += " and transport.id = @id"
+		whereClauses = append(whereClauses, "transport.id = @id")
 		args["id"] = req.TransportId
 
 	} else if req.Brand != nil {
-		query += " and transport.brand = @brand"
+		whereClauses = append(whereClauses, "transport.brand = @brand")
 		args["brand"] = req.Brand
 	} else if req.Category != nil {
-		query += " and transport.type = @type"
+		whereClauses = append(whereClauses, "transport.type = @type")
 		args["type"] = req.Category
-	} else {
-		return nil, errors.New("either transportId, category or brand must be provided")
 	}
-	query += " group by transport.id"
+	query = utils.AddWhereClauses(query, whereClauses)
+	query += " group by transport.id, transport.name, transport.brand, transport.licence_plate"
 
 	rows, err := r.DBPool.Query(ctx, query, args)
 	if err != nil {
 		return nil, err
 	}
 
+	var transportId pgtype.Int4
 	var transportName pgtype.Text
 	var brand pgtype.Text
 	var licensePlate pgtype.Text
@@ -132,7 +146,7 @@ func (r *ReportController) GetRepairCosts(ctx context.Context, req *RepairCostRe
 	var count pgtype.Int4
 
 	mapping := make(map[string]Pair[int, float64])
-	_, err = pgx.ForEachRow(rows, []any{&transportName, &brand, &licensePlate, &cost, &count}, func() error {
+	_, err = pgx.ForEachRow(rows, []any{&transportId, &transportName, &brand, &licensePlate, &cost, &count}, func() error {
 		tr := transportName.String
 		if brand.Valid {
 			tr += " " + brand.String
@@ -160,7 +174,7 @@ func (r *ReportController) GetRepairCosts(ctx context.Context, req *RepairCostRe
 }
 
 func (r *ReportController) GetDriversDistribution(ctx context.Context) (map[string]string, error) {
-	query := "select person.first_name, person.last_name, transport.name, transport.brand, transport.licence_plate from driver left join person on driver.person_id = person.id left join transport on driver.transport_id = transport.id"
+	query := "select person.first_name, person.last_name, transport.name, transport.brand, transport.licence_plate from driver left join person on driver.person_id = person.id left join active_transport as transport on driver.transport_id = transport.id"
 	rows, err := r.DBPool.Query(ctx, query)
 	if err != nil {
 		return nil, err
@@ -194,7 +208,7 @@ func (r *ReportController) GetPassengerTransportDistribution(ctx context.Context
 	args := pgx.NamedArgs{
 		"types": passengerTransport,
 	}
-	query := "select transport.name, transport.brand, transport.licence_plate, route.name from transport_on_route inner join route on route.id = transport_on_route.route_id inner join transport on transport.id = transport_on_route.transport_id where transport.type = any(@types)"
+	query := "select transport.name, transport.brand, transport.licence_plate, route.name from transport_on_route inner join route on route.id = transport_on_route.route_id inner join active_transport as transport on transport.id = transport_on_route.transport_id where transport.type = any(@types)"
 	rows, err := r.DBPool.Query(ctx, query, args)
 	var transportName pgtype.Text
 	var brand pgtype.Text
@@ -218,7 +232,7 @@ func (r *ReportController) GetPassengerTransportDistribution(ctx context.Context
 	return mapping, err
 }
 
-func (r *ReportController) GetSubordination(ctx context.Context) ([]*Subordination, error) {
+func (r *ReportController) GetSubordination(ctx context.Context, filter *SubordinationRequest_Filter) ([]*Subordination, error) {
 	_, filename, _, ok := runtime.Caller(1)
 	if !ok {
 		return nil, errors.New("failed to get the current file path")
@@ -240,6 +254,7 @@ func (r *ReportController) GetSubordination(ctx context.Context) ([]*Subordinati
 
 	var servicePersonId pgtype.Int4
 	var servicePersonName pgtype.Text
+	var servicePersonRole pgtype.Text
 	var foremanId pgtype.Int4
 	var foremanName pgtype.Text
 	var masterId pgtype.Int4
@@ -252,7 +267,7 @@ func (r *ReportController) GetSubordination(ctx context.Context) ([]*Subordinati
 	managers := make(map[int32]*Subordination)
 	plug := make(map[int32]*Subordination)
 
-	_, err = pgx.ForEachRow(rows, []any{&servicePersonId, &servicePersonName, &foremanId, &foremanName, &masterId, &masterName, &managerId, &managerName}, func() error {
+	_, err = pgx.ForEachRow(rows, []any{&servicePersonId, &servicePersonName, &servicePersonRole, &foremanId, &foremanName, &masterId, &masterName, &managerId, &managerName}, func() error {
 		if !managerId.Valid {
 			return nil
 		}
@@ -264,13 +279,12 @@ func (r *ReportController) GetSubordination(ctx context.Context) ([]*Subordinati
 			managers[managerId.Int32] = managerSub
 		}
 
-		if masterId.Valid {
-
+		if masterId.Valid || filter != nil {
 			masterSub := processSub(managerSub, masters, masterId.Int32, masterName.String, "master")
 
-			if foremanId.Valid {
+			if foremanId.Valid || filter != nil {
 				foremanSub := processSub(masterSub, foremans, foremanId.Int32, foremanName.String, "foreman")
-				processSub(foremanSub, plug, servicePersonId.Int32, servicePersonName.String, "service_person")
+				processSub(foremanSub, plug, servicePersonId.Int32, servicePersonName.String, servicePersonRole.String)
 			}
 
 		}
@@ -278,11 +292,39 @@ func (r *ReportController) GetSubordination(ctx context.Context) ([]*Subordinati
 		return nil
 	})
 
-	res := make([]*Subordination, 0, len(managers))
-	for _, manager := range managers {
-		res = append(res, manager)
+	if filter == nil {
+		res := make([]*Subordination, 0, len(managers))
+		for _, manager := range managers {
+			res = append(res, manager)
+		}
+		return res, nil
+	} else {
+
+		returnIfFound := func(id int32, data map[int32]*Subordination) []*Subordination {
+			found, ok := data[id]
+			if ok {
+				return []*Subordination{found}
+			} else {
+				return []*Subordination{}
+			}
+		}
+
+		id := filter.PersonId
+		role := filter.PersonRole
+
+		switch role {
+		case string(person.ManagerRole):
+			return returnIfFound(id, managers), nil
+		case string(person.MasterRole):
+			return returnIfFound(id, masters), nil
+		case string(person.ForemanRole):
+			return returnIfFound(id, foremans), nil
+		default:
+			return returnIfFound(id, plug), nil
+
+		}
+
 	}
-	return res, nil
 }
 
 func processSub(main *Subordination, subs map[int32]*Subordination, id int32, name string, role string) *Subordination {
@@ -294,8 +336,10 @@ func processSub(main *Subordination, subs map[int32]*Subordination, id int32, na
 		subs[id] = sub
 	}
 
-	var oldSub *Subordination
-	main.Subordinates, oldSub = addIfNotIn(main.Subordinates, sub)
+	var oldSub *Subordination = nil
+	if main != nil {
+		main.Subordinates, oldSub = addIfNotIn(main.Subordinates, sub)
+	}
 	if oldSub != nil {
 		return oldSub
 	} else {
@@ -313,7 +357,7 @@ func addIfNotIn(subs []*Subordination, new *Subordination) (newList []*Subordina
 }
 
 func (r *ReportController) Transport2GarageMapping(ctx context.Context) (map[string]string, error) {
-	query := "SELECT replace(concat(transport.name, ' ', transport.brand, ' ', transport.licence_plate), '  ', ' '), replace(concat(garage_facility.name, ' ', garage_facility.address), '  ', ' ') FROM transport left join garage_facility on transport.garage_facility_id = garage_facility.id"
+	query := "SELECT replace(concat(transport.name, ' ', transport.brand, ' ', transport.licence_plate), '  ', ' '), replace(concat(garage_facility.name, ' ', garage_facility.address), '  ', ' ') FROM active_transport as transport left join garage_facility on transport.garage_facility_id = garage_facility.id"
 	var transportName pgtype.Text
 	var garageName pgtype.Text
 	rows, err := r.DBPool.Query(ctx, query)

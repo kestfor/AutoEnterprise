@@ -1,25 +1,30 @@
-WITH service_personnell AS (SELECT id, plumber.brigade_id, person.first_name, person.last_name
+WITH service_personnell AS (SELECT id, plumber.brigade_id, person.first_name, person.last_name, person.role
                             FROM plumber
                                      left join person on plumber.person_id = person.id
                             UNION ALL
-                            SELECT id, welder.brigade_id, person.first_name, person.last_name
+                            SELECT id, welder.brigade_id, person.first_name, person.last_name, person.role
                             FROM welder
                                      left join person on welder.person_id = person.id
                             UNION ALL
-                            SELECT id, assembler.brigade_id, person.first_name, person.last_name
+                            SELECT id, assembler.brigade_id, person.first_name, person.last_name, person.role
                             FROM assembler
                                      left join person on assembler.person_id = person.id
                             UNION ALL
-                            SELECT id, technician.brigade_id, person.first_name, person.last_name
+                            SELECT id, technician.brigade_id, person.first_name, person.last_name, person.role
                             FROM technician
-                                     left join person on technician.person_id = person.id),
+                                     left join person on technician.person_id = person.id
+                            UNION ALL
+                            SELECT id, driver.brigade_id, person.first_name, person.last_name, person.role
+                            FROM driver
+                                     left join person on driver.person_id = person.id),
 
      brig_subordination As (SELECT f.id                                   as foreman_id,
                                    concat(f.first_name, ' ', f.last_name) as foreman_name,
                                    brigade.name                           as brigade_name,
                                    concat(service_personnell.first_name, ' ',
                                           service_personnell.last_name)   as service_personnell_name,
-                                   service_personnell.id                  as service_personnell_id
+                                   service_personnell.id                  as service_personnell_id,
+                                   service_personnell.role                as service_personnell_role
                             from service_personnell
                                      left join brigade on brigade.id = service_personnell.brigade_id
                                      left join person as f on f.id = brigade.foreman_id),
@@ -52,7 +57,7 @@ WITH service_personnell AS (SELECT id, plumber.brigade_id, person.first_name, pe
 
 SELECT brig_subordination.service_personnell_id,
        brig_subordination.service_personnell_name,
-
+       brig_subordination.service_personnell_role,
        brig_subordination.foreman_id,
        brig_subordination.foreman_name,
        master_subordination.master_id,

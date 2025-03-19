@@ -5,6 +5,7 @@ import (
 	. "AutoEnterpise/go_code/services/transport_service/controllers"
 	"context"
 	"errors"
+	"fmt"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -59,15 +60,21 @@ func (tc *TrolleybusController) selectTrolleybuses(ctx context.Context, query st
 
 func (tc *TrolleybusController) selectQuery() string {
 	return "select " + tc.TransportController.Fields.ToStringSelect() +
-		", trolleybus.passengers_num, trolleybus.years_of_manufacture, trolleybus.is_operational from transport right join trolleybus on transport.id = trolleybus.transport_id"
+		", trolleybus.passengers_num, trolleybus.years_of_manufacture, trolleybus.is_operational from active_transport as transport right join trolleybus on transport.id = trolleybus.transport_id"
+}
+
+func (tc *TrolleybusController) modifiedSelectQuery(tableName string) string {
+	return fmt.Sprintf("select "+tc.TransportController.Fields.ToStringSelect()+
+		", trolleybus.passengers_num, trolleybus.years_of_manufacture, trolleybus.is_operational from %s right join trolleybus on transport.id = trolleybus.transport_id", tableName)
 }
 
 func (d *TrolleybusController) All(ctx context.Context) ([]*pb.Transport, error) {
-	return d.selectTrolleybuses(ctx, d.selectQuery())
+	q := d.selectQuery() + " where transport.id is not null"
+	return d.selectTrolleybuses(ctx, q)
 }
 
 func (d *TrolleybusController) Filtered(ctx context.Context, filter *pb.TransportFilter) ([]*pb.Transport, error) {
-	query := d.selectQuery()
+	query := d.modifiedSelectQuery("transport")
 	query, args := AddDefaultTransportFilter(query, filter)
 	return d.selectTrolleybuses(ctx, query, args)
 }

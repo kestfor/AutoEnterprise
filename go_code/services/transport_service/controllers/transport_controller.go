@@ -129,7 +129,7 @@ func (f *TransportFields) ToStringSelect() string {
 }
 
 func (dc *TransportController) All(ctx context.Context) ([]*pb.Transport, error) {
-	rows, err := dc.DBPool.Query(ctx, "SELECT transport.id, transport.name, transport.licence_plate, transport.type, transport.garage_facility_id from transport")
+	rows, err := dc.DBPool.Query(ctx, "SELECT transport.id, transport.name, transport.licence_plate, transport.type, transport.garage_facility_id from active_transport as transport")
 
 	if err != nil {
 		return nil, err
