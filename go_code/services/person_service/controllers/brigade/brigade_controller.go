@@ -2,6 +2,7 @@ package brigade
 
 import (
 	pb "AutoEnterpise/go_code/generated/person"
+	"AutoEnterpise/go_code/utils"
 	"context"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -54,4 +55,8 @@ func (bc *BrigadeController) Create(ctx context.Context, brigade *pb.Brigade) er
 func (bc *BrigadeController) Alter(ctx context.Context, brigade *pb.Brigade) error {
 	_, err := bc.dbpool.Exec(ctx, "UPDATE brigade SET name = $1, foreman_id = $2 WHERE id = $3", brigade.Name, brigade.ForemanId, brigade.Id)
 	return err
+}
+
+func (bc *BrigadeController) DeleteBrigades(ctx context.Context, ids []int32) error {
+	return utils.DeleteByIds(ctx, bc.dbpool, ids, "brigade")
 }

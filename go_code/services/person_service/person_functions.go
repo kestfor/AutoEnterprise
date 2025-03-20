@@ -18,6 +18,12 @@ func (t *PersonService) GetDriversByTransport(ctx context.Context, req *pb.Drive
 	return &pb.PersonList{Persons: drivers}, err
 }
 
+func (t *PersonService) DeletePersons(ctx context.Context, req *pb.DeleteRequest) (*emptypb.Empty, error) {
+	cnt := fabric.NewPersonControllerFabric(t.Dbpool)
+	err := cnt.DeletePersons(ctx, req.Ids)
+	return &emptypb.Empty{}, err
+}
+
 func (t *PersonService) GetFilteredPersons(ctx context.Context, filter *pb.PersonFilter) (*pb.PersonList, error) {
 	cnt := fabric.NewPersonControllerFabric(t.Dbpool)
 	persons, err := cnt.Filtered(ctx, filter)

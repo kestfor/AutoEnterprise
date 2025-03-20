@@ -29,6 +29,12 @@ func (t *TransportService) CreateRoute(ctx context.Context, route *pb.Route) (*p
 	return route, err
 }
 
+func (t *TransportService) DeleteRoutes(ctx context.Context, req *pb.DeleteRequest) (*emptypb.Empty, error) {
+	cnt := r.NewRoutesController(t.Dbpool)
+	err := cnt.Delete(ctx, req.Ids)
+	return &emptypb.Empty{}, err
+}
+
 func (t *TransportService) AlterRoute(ctx context.Context, route *pb.Route) (*pb.Route, error) {
 	cnt := r.NewRoutesController(t.Dbpool)
 	route, err := cnt.Alter(ctx, route)

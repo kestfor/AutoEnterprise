@@ -20,16 +20,18 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	TripsService_CreateTrip_FullMethodName       = "/main.TripsService/CreateTrip"
-	TripsService_GetAllTrips_FullMethodName      = "/main.TripsService/GetAllTrips"
-	TripsService_AlterTrip_FullMethodName        = "/main.TripsService/AlterTrip"
-	TripsService_GetFilteredTrips_FullMethodName = "/main.TripsService/GetFilteredTrips"
+	TripsService_DeleteTrips_FullMethodName      = "/trip.TripsService/DeleteTrips"
+	TripsService_CreateTrip_FullMethodName       = "/trip.TripsService/CreateTrip"
+	TripsService_GetAllTrips_FullMethodName      = "/trip.TripsService/GetAllTrips"
+	TripsService_AlterTrip_FullMethodName        = "/trip.TripsService/AlterTrip"
+	TripsService_GetFilteredTrips_FullMethodName = "/trip.TripsService/GetFilteredTrips"
 )
 
 // TripsServiceClient is the client API for TripsService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TripsServiceClient interface {
+	DeleteTrips(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateTrip(ctx context.Context, in *Trip, opts ...grpc.CallOption) (*Trip, error)
 	GetAllTrips(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*TripList, error)
 	AlterTrip(ctx context.Context, in *Trip, opts ...grpc.CallOption) (*Trip, error)
@@ -42,6 +44,16 @@ type tripsServiceClient struct {
 
 func NewTripsServiceClient(cc grpc.ClientConnInterface) TripsServiceClient {
 	return &tripsServiceClient{cc}
+}
+
+func (c *tripsServiceClient) DeleteTrips(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, TripsService_DeleteTrips_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *tripsServiceClient) CreateTrip(ctx context.Context, in *Trip, opts ...grpc.CallOption) (*Trip, error) {
@@ -88,6 +100,7 @@ func (c *tripsServiceClient) GetFilteredTrips(ctx context.Context, in *TripFilte
 // All implementations must embed UnimplementedTripsServiceServer
 // for forward compatibility.
 type TripsServiceServer interface {
+	DeleteTrips(context.Context, *DeleteRequest) (*emptypb.Empty, error)
 	CreateTrip(context.Context, *Trip) (*Trip, error)
 	GetAllTrips(context.Context, *emptypb.Empty) (*TripList, error)
 	AlterTrip(context.Context, *Trip) (*Trip, error)
@@ -102,6 +115,9 @@ type TripsServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedTripsServiceServer struct{}
 
+func (UnimplementedTripsServiceServer) DeleteTrips(context.Context, *DeleteRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteTrips not implemented")
+}
 func (UnimplementedTripsServiceServer) CreateTrip(context.Context, *Trip) (*Trip, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTrip not implemented")
 }
@@ -133,6 +149,24 @@ func RegisterTripsServiceServer(s grpc.ServiceRegistrar, srv TripsServiceServer)
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&TripsService_ServiceDesc, srv)
+}
+
+func _TripsService_DeleteTrips_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TripsServiceServer).DeleteTrips(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TripsService_DeleteTrips_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TripsServiceServer).DeleteTrips(ctx, req.(*DeleteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _TripsService_CreateTrip_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -211,9 +245,13 @@ func _TripsService_GetFilteredTrips_Handler(srv interface{}, ctx context.Context
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var TripsService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "main.TripsService",
+	ServiceName: "trip.TripsService",
 	HandlerType: (*TripsServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "DeleteTrips",
+			Handler:    _TripsService_DeleteTrips_Handler,
+		},
 		{
 			MethodName: "CreateTrip",
 			Handler:    _TripsService_CreateTrip_Handler,

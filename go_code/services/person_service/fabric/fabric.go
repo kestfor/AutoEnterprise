@@ -6,6 +6,7 @@ import (
 	. "AutoEnterpise/go_code/services/person_service/controllers/main_persons"
 	. "AutoEnterpise/go_code/services/person_service/controllers/service_personnel"
 	types "AutoEnterpise/go_code/types/person"
+	"AutoEnterpise/go_code/utils"
 	"context"
 	"errors"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -134,4 +135,8 @@ func (c *PersonControllerFabric) Filtered(ctx context.Context, filter *pb.Person
 	}
 
 	return c.selectPersons(ctx, filter, cnts)
+}
+
+func (c *PersonControllerFabric) DeletePersons(ctx context.Context, ids []int32) error {
+	return utils.DeleteByIds(ctx, c.dbpool, ids, "person")
 }

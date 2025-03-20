@@ -3,6 +3,7 @@ package trips
 import (
 	pb "AutoEnterpise/go_code/generated/trips"
 	types "AutoEnterpise/go_code/types/route"
+	"AutoEnterpise/go_code/utils"
 	"context"
 	"errors"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -88,4 +89,8 @@ func (c *TripControllerFabric) All(ctx context.Context) ([]*pb.Trip, error) {
 
 func (c *TripControllerFabric) Filtered(ctx context.Context, filter *pb.TripFilter) ([]*pb.Trip, error) {
 	return c.selectTrip(ctx, filter)
+}
+
+func (t *TripControllerFabric) Delete(ctx context.Context, ids []int32) error {
+	return utils.DeleteByIds(ctx, t.dbpool, ids, "trip")
 }

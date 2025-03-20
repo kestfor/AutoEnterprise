@@ -2,6 +2,7 @@ package garage
 
 import (
 	pb "AutoEnterpise/go_code/generated/transport"
+	"AutoEnterpise/go_code/utils"
 	"context"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -54,4 +55,8 @@ func (bc *GarageFacilityController) Alter(ctx context.Context, garage *pb.Garage
 	_, err := bc.dbpool.Exec(ctx, "UPDATE garage_facility SET name = $1, type = $2, address=$3 WHERE id = $4",
 		garage.Name, garage.Type, garage.Address, garage.Id)
 	return err
+}
+
+func (bc *GarageFacilityController) Delete(ctx context.Context, ids []int32) error {
+	return utils.DeleteByIds(ctx, bc.dbpool, ids, "garage_facility")
 }

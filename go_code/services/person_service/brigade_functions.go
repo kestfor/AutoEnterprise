@@ -19,6 +19,12 @@ func (t *PersonService) GetAllBrigades(ctx context.Context, _ *emptypb.Empty) (*
 	}
 }
 
+func (t *PersonService) DeleteBrigades(ctx context.Context, req *pb.DeleteRequest) (*emptypb.Empty, error) {
+	cnt := br.NewBrigadeController(t.Dbpool)
+	err := cnt.DeleteBrigades(ctx, req.Ids)
+	return &emptypb.Empty{}, err
+}
+
 func (t *PersonService) CreateBrigade(ctx context.Context, brigade *pb.Brigade) (*pb.Brigade, error) {
 	cnt := br.NewBrigadeController(t.Dbpool)
 	err := cnt.Create(ctx, brigade)

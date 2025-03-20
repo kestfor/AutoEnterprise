@@ -3,6 +3,7 @@ package routes
 import (
 	pb "AutoEnterpise/go_code/generated/transport"
 	"AutoEnterpise/go_code/services/transport_service/fabric"
+	"AutoEnterpise/go_code/utils"
 	"context"
 	"fmt"
 	"github.com/jackc/pgx/v5"
@@ -217,4 +218,8 @@ func (rc *RoutesController) GetRouteByTransportId(ctx context.Context, transport
 	} else {
 		return routes[0], err
 	}
+}
+
+func (bc *RoutesController) Delete(ctx context.Context, ids []int32) error {
+	return utils.DeleteByIds(ctx, bc.DBPool, ids, "route")
 }

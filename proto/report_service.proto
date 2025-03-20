@@ -1,5 +1,5 @@
 syntax = "proto3";
-package main;
+package report;
 option go_package = ".";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
