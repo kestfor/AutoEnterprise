@@ -71,11 +71,11 @@ func (t *TripService) CreateTrip(ctx context.Context, trip *pb.Trip) (*pb.Trip, 
 	return trip, err
 }
 
-func (t *TripService) DeleteTrips(ctx context.Context, req *pb.DeleteRequest) (*emptypb.Empty, error) {
-	cnt := trips2.NewTripControllerFabric(t.Dbpool)
-	err := cnt.Delete(ctx, req.Ids)
-	return &emptypb.Empty{}, err
-}
+//func (t *TripService) DeleteTrips(ctx context.Context, req *pb.DeleteRequest) (*emptypb.Empty, error) {
+//	cnt := trips2.NewTripControllerFabric(t.Dbpool)
+//	err := cnt.Delete(ctx, req.Ids)
+//	return &emptypb.Empty{}, err
+//}
 
 func (t *TripService) AlterTrip(ctx context.Context, trip *pb.Trip) (*pb.Trip, error) {
 	cnt := trips2.NewTripControllerFabric(t.Dbpool)

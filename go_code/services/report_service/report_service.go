@@ -3,6 +3,7 @@ package report_service
 import (
 	pb "AutoEnterpise/go_code/generated/report"
 	"context"
+	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -47,6 +48,7 @@ func (rs *ReportService) GetPassengerTransportDistribution(ctx context.Context, 
 func (rs *ReportService) GetSubordination(ctx context.Context, in *pb.SubordinationRequest) (*pb.SubordinationResponse, error) {
 	cnt := NewReportController(rs.Dbpool)
 	subs, err := cnt.GetSubordination(ctx, in.GetFilter())
+	fmt.Println(subs)
 	return &pb.SubordinationResponse{Subordinations: subs}, err
 }
 

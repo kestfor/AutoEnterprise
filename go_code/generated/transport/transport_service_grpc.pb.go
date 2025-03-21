@@ -20,32 +20,30 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	TransportService_DeleteRoutes_FullMethodName             = "/transport.TransportService/DeleteRoutes"
-	TransportService_CreateRoute_FullMethodName              = "/transport.TransportService/CreateRoute"
-	TransportService_AlterRoute_FullMethodName               = "/transport.TransportService/AlterRoute"
-	TransportService_GetAllRoutes_FullMethodName             = "/transport.TransportService/GetAllRoutes"
-	TransportService_GetRouteByTransportId_FullMethodName    = "/transport.TransportService/GetRouteByTransportId"
-	TransportService_AddTransportToRoute_FullMethodName      = "/transport.TransportService/AddTransportToRoute"
-	TransportService_RemoveTransportFromRoute_FullMethodName = "/transport.TransportService/RemoveTransportFromRoute"
-	TransportService_GetAllOperations_FullMethodName         = "/transport.TransportService/GetAllOperations"
-	TransportService_CreateOperation_FullMethodName          = "/transport.TransportService/CreateOperation"
-	TransportService_AlterOperation_FullMethodName           = "/transport.TransportService/AlterOperation"
-	TransportService_GetFilteredOperations_FullMethodName    = "/transport.TransportService/GetFilteredOperations"
-	TransportService_DeleteGarages_FullMethodName            = "/transport.TransportService/DeleteGarages"
-	TransportService_GetAllGarages_FullMethodName            = "/transport.TransportService/GetAllGarages"
-	TransportService_AlterGarage_FullMethodName              = "/transport.TransportService/AlterGarage"
-	TransportService_CreateGarage_FullMethodName             = "/transport.TransportService/CreateGarage"
-	TransportService_GetFilteredTransport_FullMethodName     = "/transport.TransportService/GetFilteredTransport"
-	TransportService_CreateTransport_FullMethodName          = "/transport.TransportService/CreateTransport"
-	TransportService_AlterTransport_FullMethodName           = "/transport.TransportService/AlterTransport"
-	TransportService_GetAllTransports_FullMethodName         = "/transport.TransportService/GetAllTransports"
+	TransportService_CreateRoute_FullMethodName              = "/main.TransportService/CreateRoute"
+	TransportService_AlterRoute_FullMethodName               = "/main.TransportService/AlterRoute"
+	TransportService_GetAllRoutes_FullMethodName             = "/main.TransportService/GetAllRoutes"
+	TransportService_GetRouteByTransportId_FullMethodName    = "/main.TransportService/GetRouteByTransportId"
+	TransportService_AddTransportToRoute_FullMethodName      = "/main.TransportService/AddTransportToRoute"
+	TransportService_RemoveTransportFromRoute_FullMethodName = "/main.TransportService/RemoveTransportFromRoute"
+	TransportService_GetAllOperations_FullMethodName         = "/main.TransportService/GetAllOperations"
+	TransportService_CreateOperation_FullMethodName          = "/main.TransportService/CreateOperation"
+	TransportService_AlterOperation_FullMethodName           = "/main.TransportService/AlterOperation"
+	TransportService_GetFilteredOperations_FullMethodName    = "/main.TransportService/GetFilteredOperations"
+	TransportService_GetAllGarages_FullMethodName            = "/main.TransportService/GetAllGarages"
+	TransportService_AlterGarage_FullMethodName              = "/main.TransportService/AlterGarage"
+	TransportService_CreateGarage_FullMethodName             = "/main.TransportService/CreateGarage"
+	TransportService_GetFilteredTransport_FullMethodName     = "/main.TransportService/GetFilteredTransport"
+	TransportService_CreateTransport_FullMethodName          = "/main.TransportService/CreateTransport"
+	TransportService_AlterTransport_FullMethodName           = "/main.TransportService/AlterTransport"
+	TransportService_GetAllTransports_FullMethodName         = "/main.TransportService/GetAllTransports"
 )
 
 // TransportServiceClient is the client API for TransportService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TransportServiceClient interface {
-	DeleteRoutes(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// rpc DeleteRoutes(DeleteRequest) returns (google.protobuf.Empty);
 	CreateRoute(ctx context.Context, in *Route, opts ...grpc.CallOption) (*Route, error)
 	AlterRoute(ctx context.Context, in *Route, opts ...grpc.CallOption) (*Route, error)
 	GetAllRoutes(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*RouteList, error)
@@ -56,7 +54,7 @@ type TransportServiceClient interface {
 	CreateOperation(ctx context.Context, in *TransportOperation, opts ...grpc.CallOption) (*TransportOperation, error)
 	AlterOperation(ctx context.Context, in *TransportOperation, opts ...grpc.CallOption) (*TransportOperation, error)
 	GetFilteredOperations(ctx context.Context, in *OperationFilter, opts ...grpc.CallOption) (*TransportOperationList, error)
-	DeleteGarages(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// rpc DeleteGarages(DeleteRequest) returns (google.protobuf.Empty);
 	GetAllGarages(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GarageFacilityList, error)
 	AlterGarage(ctx context.Context, in *GarageFacility, opts ...grpc.CallOption) (*GarageFacility, error)
 	CreateGarage(ctx context.Context, in *GarageFacility, opts ...grpc.CallOption) (*GarageFacility, error)
@@ -72,16 +70,6 @@ type transportServiceClient struct {
 
 func NewTransportServiceClient(cc grpc.ClientConnInterface) TransportServiceClient {
 	return &transportServiceClient{cc}
-}
-
-func (c *transportServiceClient) DeleteRoutes(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, TransportService_DeleteRoutes_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *transportServiceClient) CreateRoute(ctx context.Context, in *Route, opts ...grpc.CallOption) (*Route, error) {
@@ -184,16 +172,6 @@ func (c *transportServiceClient) GetFilteredOperations(ctx context.Context, in *
 	return out, nil
 }
 
-func (c *transportServiceClient) DeleteGarages(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, TransportService_DeleteGarages_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *transportServiceClient) GetAllGarages(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GarageFacilityList, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GarageFacilityList)
@@ -268,7 +246,7 @@ func (c *transportServiceClient) GetAllTransports(ctx context.Context, in *empty
 // All implementations must embed UnimplementedTransportServiceServer
 // for forward compatibility.
 type TransportServiceServer interface {
-	DeleteRoutes(context.Context, *DeleteRequest) (*emptypb.Empty, error)
+	// rpc DeleteRoutes(DeleteRequest) returns (google.protobuf.Empty);
 	CreateRoute(context.Context, *Route) (*Route, error)
 	AlterRoute(context.Context, *Route) (*Route, error)
 	GetAllRoutes(context.Context, *emptypb.Empty) (*RouteList, error)
@@ -279,7 +257,7 @@ type TransportServiceServer interface {
 	CreateOperation(context.Context, *TransportOperation) (*TransportOperation, error)
 	AlterOperation(context.Context, *TransportOperation) (*TransportOperation, error)
 	GetFilteredOperations(context.Context, *OperationFilter) (*TransportOperationList, error)
-	DeleteGarages(context.Context, *DeleteRequest) (*emptypb.Empty, error)
+	// rpc DeleteGarages(DeleteRequest) returns (google.protobuf.Empty);
 	GetAllGarages(context.Context, *emptypb.Empty) (*GarageFacilityList, error)
 	AlterGarage(context.Context, *GarageFacility) (*GarageFacility, error)
 	CreateGarage(context.Context, *GarageFacility) (*GarageFacility, error)
@@ -297,9 +275,6 @@ type TransportServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedTransportServiceServer struct{}
 
-func (UnimplementedTransportServiceServer) DeleteRoutes(context.Context, *DeleteRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteRoutes not implemented")
-}
 func (UnimplementedTransportServiceServer) CreateRoute(context.Context, *Route) (*Route, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateRoute not implemented")
 }
@@ -329,9 +304,6 @@ func (UnimplementedTransportServiceServer) AlterOperation(context.Context, *Tran
 }
 func (UnimplementedTransportServiceServer) GetFilteredOperations(context.Context, *OperationFilter) (*TransportOperationList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFilteredOperations not implemented")
-}
-func (UnimplementedTransportServiceServer) DeleteGarages(context.Context, *DeleteRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteGarages not implemented")
 }
 func (UnimplementedTransportServiceServer) GetAllGarages(context.Context, *emptypb.Empty) (*GarageFacilityList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllGarages not implemented")
@@ -373,24 +345,6 @@ func RegisterTransportServiceServer(s grpc.ServiceRegistrar, srv TransportServic
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&TransportService_ServiceDesc, srv)
-}
-
-func _TransportService_DeleteRoutes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TransportServiceServer).DeleteRoutes(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: TransportService_DeleteRoutes_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TransportServiceServer).DeleteRoutes(ctx, req.(*DeleteRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _TransportService_CreateRoute_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -573,24 +527,6 @@ func _TransportService_GetFilteredOperations_Handler(srv interface{}, ctx contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TransportService_DeleteGarages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TransportServiceServer).DeleteGarages(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: TransportService_DeleteGarages_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TransportServiceServer).DeleteGarages(ctx, req.(*DeleteRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _TransportService_GetAllGarages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -721,13 +657,9 @@ func _TransportService_GetAllTransports_Handler(srv interface{}, ctx context.Con
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var TransportService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "transport.TransportService",
+	ServiceName: "main.TransportService",
 	HandlerType: (*TransportServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "DeleteRoutes",
-			Handler:    _TransportService_DeleteRoutes_Handler,
-		},
 		{
 			MethodName: "CreateRoute",
 			Handler:    _TransportService_CreateRoute_Handler,
@@ -767,10 +699,6 @@ var TransportService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetFilteredOperations",
 			Handler:    _TransportService_GetFilteredOperations_Handler,
-		},
-		{
-			MethodName: "DeleteGarages",
-			Handler:    _TransportService_DeleteGarages_Handler,
 		},
 		{
 			MethodName: "GetAllGarages",

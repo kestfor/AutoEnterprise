@@ -20,23 +20,21 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	PersonService_CreateTransportUnit_FullMethodName    = "/person.PersonService/CreateTransportUnit"
-	PersonService_AlterTransportUnit_FullMethodName     = "/person.PersonService/AlterTransportUnit"
-	PersonService_GetAllTransportUnits_FullMethodName   = "/person.PersonService/GetAllTransportUnits"
-	PersonService_GetFilteredPersons_FullMethodName     = "/person.PersonService/GetFilteredPersons"
-	PersonService_GetFilteredRepairWorks_FullMethodName = "/person.PersonService/GetFilteredRepairWorks"
-	PersonService_GetDriversByTransport_FullMethodName  = "/person.PersonService/GetDriversByTransport"
-	PersonService_DeletePersons_FullMethodName          = "/person.PersonService/DeletePersons"
-	PersonService_DeleteBrigades_FullMethodName         = "/person.PersonService/DeleteBrigades"
-	PersonService_AlterRepairWork_FullMethodName        = "/person.PersonService/AlterRepairWork"
-	PersonService_CreateRepairWork_FullMethodName       = "/person.PersonService/CreateRepairWork"
-	PersonService_GetAllRepairWorks_FullMethodName      = "/person.PersonService/GetAllRepairWorks"
-	PersonService_CreateBrigade_FullMethodName          = "/person.PersonService/CreateBrigade"
-	PersonService_AlterBrigade_FullMethodName           = "/person.PersonService/AlterBrigade"
-	PersonService_GetAllBrigades_FullMethodName         = "/person.PersonService/GetAllBrigades"
-	PersonService_CreatePerson_FullMethodName           = "/person.PersonService/CreatePerson"
-	PersonService_AlterPerson_FullMethodName            = "/person.PersonService/AlterPerson"
-	PersonService_GetAllPersons_FullMethodName          = "/person.PersonService/GetAllPersons"
+	PersonService_CreateTransportUnit_FullMethodName    = "/main.PersonService/CreateTransportUnit"
+	PersonService_AlterTransportUnit_FullMethodName     = "/main.PersonService/AlterTransportUnit"
+	PersonService_GetAllTransportUnits_FullMethodName   = "/main.PersonService/GetAllTransportUnits"
+	PersonService_GetFilteredPersons_FullMethodName     = "/main.PersonService/GetFilteredPersons"
+	PersonService_GetFilteredRepairWorks_FullMethodName = "/main.PersonService/GetFilteredRepairWorks"
+	PersonService_GetDriversByTransport_FullMethodName  = "/main.PersonService/GetDriversByTransport"
+	PersonService_AlterRepairWork_FullMethodName        = "/main.PersonService/AlterRepairWork"
+	PersonService_CreateRepairWork_FullMethodName       = "/main.PersonService/CreateRepairWork"
+	PersonService_GetAllRepairWorks_FullMethodName      = "/main.PersonService/GetAllRepairWorks"
+	PersonService_CreateBrigade_FullMethodName          = "/main.PersonService/CreateBrigade"
+	PersonService_AlterBrigade_FullMethodName           = "/main.PersonService/AlterBrigade"
+	PersonService_GetAllBrigades_FullMethodName         = "/main.PersonService/GetAllBrigades"
+	PersonService_CreatePerson_FullMethodName           = "/main.PersonService/CreatePerson"
+	PersonService_AlterPerson_FullMethodName            = "/main.PersonService/AlterPerson"
+	PersonService_GetAllPersons_FullMethodName          = "/main.PersonService/GetAllPersons"
 )
 
 // PersonServiceClient is the client API for PersonService service.
@@ -49,9 +47,6 @@ type PersonServiceClient interface {
 	GetFilteredPersons(ctx context.Context, in *PersonFilter, opts ...grpc.CallOption) (*PersonList, error)
 	GetFilteredRepairWorks(ctx context.Context, in *RepairWorkFilter, opts ...grpc.CallOption) (*RepairWorkList, error)
 	GetDriversByTransport(ctx context.Context, in *DriversRequest, opts ...grpc.CallOption) (*PersonList, error)
-	// rpc GetSubordination(google.protobuf.Empty) returns (SubordinationResponse) {}
-	DeletePersons(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	DeleteBrigades(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	AlterRepairWork(ctx context.Context, in *RepairWork, opts ...grpc.CallOption) (*RepairWork, error)
 	CreateRepairWork(ctx context.Context, in *RepairWork, opts ...grpc.CallOption) (*RepairWork, error)
 	GetAllRepairWorks(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*RepairWorkList, error)
@@ -125,26 +120,6 @@ func (c *personServiceClient) GetDriversByTransport(ctx context.Context, in *Dri
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(PersonList)
 	err := c.cc.Invoke(ctx, PersonService_GetDriversByTransport_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *personServiceClient) DeletePersons(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, PersonService_DeletePersons_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *personServiceClient) DeleteBrigades(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, PersonService_DeleteBrigades_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -251,9 +226,6 @@ type PersonServiceServer interface {
 	GetFilteredPersons(context.Context, *PersonFilter) (*PersonList, error)
 	GetFilteredRepairWorks(context.Context, *RepairWorkFilter) (*RepairWorkList, error)
 	GetDriversByTransport(context.Context, *DriversRequest) (*PersonList, error)
-	// rpc GetSubordination(google.protobuf.Empty) returns (SubordinationResponse) {}
-	DeletePersons(context.Context, *DeleteRequest) (*emptypb.Empty, error)
-	DeleteBrigades(context.Context, *DeleteRequest) (*emptypb.Empty, error)
 	AlterRepairWork(context.Context, *RepairWork) (*RepairWork, error)
 	CreateRepairWork(context.Context, *RepairWork) (*RepairWork, error)
 	GetAllRepairWorks(context.Context, *emptypb.Empty) (*RepairWorkList, error)
@@ -290,12 +262,6 @@ func (UnimplementedPersonServiceServer) GetFilteredRepairWorks(context.Context, 
 }
 func (UnimplementedPersonServiceServer) GetDriversByTransport(context.Context, *DriversRequest) (*PersonList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDriversByTransport not implemented")
-}
-func (UnimplementedPersonServiceServer) DeletePersons(context.Context, *DeleteRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeletePersons not implemented")
-}
-func (UnimplementedPersonServiceServer) DeleteBrigades(context.Context, *DeleteRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteBrigades not implemented")
 }
 func (UnimplementedPersonServiceServer) AlterRepairWork(context.Context, *RepairWork) (*RepairWork, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AlterRepairWork not implemented")
@@ -449,42 +415,6 @@ func _PersonService_GetDriversByTransport_Handler(srv interface{}, ctx context.C
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(PersonServiceServer).GetDriversByTransport(ctx, req.(*DriversRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _PersonService_DeletePersons_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(PersonServiceServer).DeletePersons(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: PersonService_DeletePersons_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PersonServiceServer).DeletePersons(ctx, req.(*DeleteRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _PersonService_DeleteBrigades_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(PersonServiceServer).DeleteBrigades(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: PersonService_DeleteBrigades_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PersonServiceServer).DeleteBrigades(ctx, req.(*DeleteRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -655,7 +585,7 @@ func _PersonService_GetAllPersons_Handler(srv interface{}, ctx context.Context, 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var PersonService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "person.PersonService",
+	ServiceName: "main.PersonService",
 	HandlerType: (*PersonServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -681,14 +611,6 @@ var PersonService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetDriversByTransport",
 			Handler:    _PersonService_GetDriversByTransport_Handler,
-		},
-		{
-			MethodName: "DeletePersons",
-			Handler:    _PersonService_DeletePersons_Handler,
-		},
-		{
-			MethodName: "DeleteBrigades",
-			Handler:    _PersonService_DeleteBrigades_Handler,
 		},
 		{
 			MethodName: "AlterRepairWork",

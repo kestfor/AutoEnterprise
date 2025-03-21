@@ -1,5 +1,5 @@
 syntax = "proto3";
-package person;
+package main;
 option go_package = ".";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
@@ -189,9 +189,9 @@ message DriversRequest {
 //  repeated Employer employers = 1;
 //}
 
-message DeleteRequest {
-  repeated int32 ids = 1;
-}
+//message DeleteRequest {
+//  repeated int32 ids = 1;
+//}
 
 service PersonService {
   rpc CreateTransportUnit(TransportUnit) returns (TransportUnit) {}
@@ -205,8 +205,8 @@ service PersonService {
 
 
 //  rpc GetSubordination(google.protobuf.Empty) returns (SubordinationResponse) {}
-  rpc DeletePersons(DeleteRequest) returns (google.protobuf.Empty);
-  rpc DeleteBrigades(DeleteRequest) returns (google.protobuf.Empty);
+  //rpc DeletePersons(DeleteRequest) returns (google.protobuf.Empty);
+  //rpc DeleteBrigades(DeleteRequest) returns (google.protobuf.Empty);
 
   rpc AlterRepairWork(RepairWork) returns (RepairWork) {}
   rpc CreateRepairWork(RepairWork) returns (RepairWork) {}

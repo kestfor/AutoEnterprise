@@ -38,8 +38,9 @@ func (t *TransportService) AlterGarage(ctx context.Context, garage *pb.GarageFac
 	return garage, err
 }
 
-func (t *TransportService) DeleteGarages(ctx context.Context, req *pb.DeleteRequest) (*emptypb.Empty, error) {
-	cnt := NewGarageFacilityController(t.Dbpool)
-	err := cnt.Delete(ctx, req.Ids)
-	return &emptypb.Empty{}, err
-}
+//
+//func (t *TransportService) DeleteGarages(ctx context.Context, req *pb.DeleteRequest) (*emptypb.Empty, error) {
+//	cnt := NewGarageFacilityController(t.Dbpool)
+//	err := cnt.Delete(ctx, req.Ids)
+//	return &emptypb.Empty{}, err
+//}

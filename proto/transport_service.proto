@@ -1,5 +1,5 @@
 syntax = "proto3";
-package transport;
+package main;
 option go_package = ".";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
@@ -129,13 +129,13 @@ message OperationFilter {
   repeated int32 ids = 3;
 }
 
-message DeleteRequest {
-  repeated int32 ids = 1;
-}
+//message DeleteRequest {
+//  repeated int32 ids = 1;
+//}
 
 service TransportService {
 
-  rpc DeleteRoutes(DeleteRequest) returns (google.protobuf.Empty);
+  //rpc DeleteRoutes(DeleteRequest) returns (google.protobuf.Empty);
   rpc CreateRoute(Route) returns (Route) {}
   rpc AlterRoute(Route) returns (Route) {}
   rpc GetAllRoutes(google.protobuf.Empty) returns (RouteList) {}
@@ -148,7 +148,7 @@ service TransportService {
   rpc AlterOperation(TransportOperation) returns (TransportOperation) {}
   rpc GetFilteredOperations(OperationFilter) returns (TransportOperationList) {}
 
-  rpc DeleteGarages(DeleteRequest) returns (google.protobuf.Empty);
+  //rpc DeleteGarages(DeleteRequest) returns (google.protobuf.Empty);
   rpc GetAllGarages(google.protobuf.Empty) returns (GarageFacilityList) {}
   rpc AlterGarage(GarageFacility) returns (GarageFacility) {}
   rpc CreateGarage(GarageFacility) returns (GarageFacility) {}

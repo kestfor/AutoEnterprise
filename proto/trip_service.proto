@@ -1,5 +1,5 @@
 syntax = "proto3";
-package trip;
+package main;
 option go_package = ".";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
@@ -52,12 +52,12 @@ message TripList {
   repeated Trip trips = 1;
 }
 
-message DeleteRequest {
-  repeated int32 ids = 1;
-}
+//message DeleteRequest {
+//  repeated int32 ids = 1;
+//}
 
 service TripsService {
-  rpc DeleteTrips(DeleteRequest) returns (google.protobuf.Empty);
+  //rpc DeleteTrips(DeleteRequest) returns (google.protobuf.Empty);
   rpc CreateTrip(Trip) returns (Trip) {}
   rpc GetAllTrips(google.protobuf.Empty) returns (TripList) {}
   rpc AlterTrip(Trip) returns (Trip) {}
