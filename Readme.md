@@ -7,47 +7,15 @@
 ### backend and frontend communicate via GRPC
 
 ## Images and GIFs:
-<div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between;">
 
-<div style="display: flex; gap: 20px;">
-  <div>
-    <h4>Menu</h4>
-    <img src="/images/menu.png" width="300">
-  </div>
-  <div>
-    <h4>Subordination tree</h4>
-    <img src="/images/tree.png" width="300">
-  </div>
-  <div>
-    <h4>Report example</h4>
-    <img src="/images/mileage_report.png" width="300">
-  </div>
-</div>
+| Menu | Subordination tree | Report example |
+|:-:|:-:|:-:|
+| ![Menu](/images/menu.png) | ![Subordination tree](/images/tree.png) | ![Report example](/images/mileage_report.png) |
 
-<div style="display: flex; gap: 20px;">
-  <div>
-    <h4>List of table items example</h4>
-    <img src="/images/transport_op_screen.png" width="300">
-  </div>
-  <div>
-    <h4>Detailed item example</h4>
-    <img src="/images/detailed_repair_screen.png" width="300">
-  </div>
-  <div>
-    <h4>Editing garage gif example</h4>
-    <img src="/images/garage_example.gif" width="300">
-  </div>
-</div>
+| List of table items | Detailed item | Editing garage gif |
+|:-:|:-:|:-:|
+| ![List of table items](/images/transport_op_screen.png) | ![Detailed item](/images/detailed_repair_screen.png) | ![Editing garage gif](/images/garage_example.gif) |
 
-<div style="display: flex; gap: 20px;">
-  <div>
-    <h4>Viewing subordination tree gif example</h4>
-    <img src="/images/sub_tree.gif" width="300">
-  </div>
-  <div>
-    <h4>Creating repair and viewing report gif example</h4>
-    <img src="/images/repairs.gif" width="300">
-  </div>
-</div>
-
-</div>
+| Viewing subordination tree gif | Creating repair and viewing report gif |
+|:-:|:-:|
+| ![Viewing subordination tree gif](/images/sub_tree.gif) | ![Creating repair and viewing report gif](/images/repairs.gif) |
