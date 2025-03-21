@@ -1,0 +1,65 @@
+syntax = "proto3";
+package main;
+option go_package = ".";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+enum TripType {
+  cargo = 0;
+  passenger = 1;
+}
+
+message TripInfoCargo {
+  int32 id = 1;
+  string cargoType = 2;
+  string cargoName = 3;
+  float cargoWeight = 4;
+  float cargoCost = 5;
+}
+
+message TripInfoPassenger {
+  int32 id = 1;
+  int32 passengersNum = 2;
+}
+
+message Trip {
+  optional int32 id = 1;
+  optional int32 routeId = 2;
+  optional int32 driverId = 3;
+  optional int32 transportId = 4;
+  google.protobuf.Timestamp startTime = 5;
+  optional google.protobuf.Timestamp endTime = 6;
+  string type = 7;
+  optional float distance = 10;
+
+  oneof tripInfo {
+    TripInfoCargo cargo = 8;
+    TripInfoPassenger passengers = 9;
+  }
+}
+
+message TripFilter {
+  optional int32 routeId = 1;
+  optional int32 driverId = 2;
+  optional int32 transportId = 3;
+  optional google.protobuf.Timestamp dateFrom = 4;
+  optional google.protobuf.Timestamp dateTo = 5;
+  optional string type = 6;
+  repeated int32 ids = 7;
+}
+
+message TripList {
+  repeated Trip trips = 1;
+}
+
+//message DeleteRequest {
+//  repeated int32 ids = 1;
+//}
+
+service TripsService {
+  //rpc DeleteTrips(DeleteRequest) returns (google.protobuf.Empty);
+  rpc CreateTrip(Trip) returns (Trip) {}
+  rpc GetAllTrips(google.protobuf.Empty) returns (TripList) {}
+  rpc AlterTrip(Trip) returns (Trip) {}
+  rpc GetFilteredTrips(TripFilter) returns (TripList) {}
+}

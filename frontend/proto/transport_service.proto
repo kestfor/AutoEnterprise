@@ -1,0 +1,160 @@
+syntax = "proto3";
+package main;
+option go_package = ".";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+enum TransportType {
+  bus = 0;
+  taxi = 1;
+  tram = 2;
+  trolleybus = 3;
+  truck = 4;
+}
+
+enum GarageFacilityType {
+  attached_garage = 0;
+  detached_garage = 1;
+  carport = 2;
+}
+
+enum TransportOperationType {
+  purchase = 0;
+  write_off = 1;
+  sale = 2;
+}
+
+message TransportOperation {
+  optional int32 id = 1;
+  string type = 2;
+  google.protobuf.Timestamp date = 3;
+  optional string description = 4;
+  optional int32 transportId = 5;
+}
+
+message GarageFacility {
+  optional int32 id = 1;
+  string type = 2;
+  string name = 3;
+  string address = 4;
+}
+
+message BusInfo {
+  int32 passengersNum = 2;
+}
+
+message TaxiInfo {
+  bool isAvailable = 1;
+  int32 yearsOfManufacture = 2;
+  string fuelType = 3;
+}
+
+message TramInfo {
+  int32 passengersNum = 2;
+  int32 yearsOfManufacture = 3;
+  bool isOperational = 4;
+}
+
+message TrolleybusInfo {
+  int32 passengersNum = 2;
+  int32 yearsOfManufacture = 3;
+  bool isOperational = 4;
+}
+
+message TruckInfo {
+  float cargoCapacityKg = 2;
+  float fuelConsumption = 3;
+  string truckType = 4;
+  int32 yearsOfManufacture = 5;
+}
+
+message Transport {
+  optional int32 id = 1;
+  string type = 2;
+  string brand = 3;
+  optional int32 garageFacilityId = 4;
+  string licensePlate = 5;
+  string name = 6;
+
+  oneof transportInfo {
+    BusInfo busInfo = 10;
+    TaxiInfo taxiInfo = 11;
+    TramInfo tramInfo = 7;
+    TrolleybusInfo trolleybusInfo = 8;
+    TruckInfo truckInfo = 9;
+  }
+}
+
+message TransportList {
+  repeated Transport transports = 1;
+}
+
+message GarageFacilityList {
+  repeated GarageFacility garages = 1;
+}
+
+message TransportOperationList {
+  repeated TransportOperation operations = 1;
+}
+
+message TransportFilter {
+  optional int32 routeId = 1;
+  optional int32 garageFacilityId = 2;
+  repeated int32 ids = 3;
+}
+
+message ModifyRouteRequest {
+  int32 id = 1;
+  repeated int32 transportId = 2;
+}
+
+message Route {
+  optional int32 id = 1;
+  string name = 2;
+  repeated Transport transport = 3;
+}
+
+
+message RouteList {
+  repeated Route routes = 1;
+}
+
+message GetRouteByTransportIdRequest {
+  int32 transportId = 1;
+}
+
+message OperationFilter {
+  google.protobuf.Timestamp dateFrom = 1;
+  google.protobuf.Timestamp dateTo = 2;
+  repeated int32 ids = 3;
+}
+
+//message DeleteRequest {
+//  repeated int32 ids = 1;
+//}
+
+service TransportService {
+
+  //rpc DeleteRoutes(DeleteRequest) returns (google.protobuf.Empty);
+  rpc CreateRoute(Route) returns (Route) {}
+  rpc AlterRoute(Route) returns (Route) {}
+  rpc GetAllRoutes(google.protobuf.Empty) returns (RouteList) {}
+  rpc GetRouteByTransportId(GetRouteByTransportIdRequest) returns (Route) {}
+  rpc AddTransportToRoute(ModifyRouteRequest) returns (google.protobuf.Empty) {}
+  rpc RemoveTransportFromRoute(ModifyRouteRequest) returns (google.protobuf.Empty) {}
+
+  rpc GetAllOperations(google.protobuf.Empty) returns (TransportOperationList) {}
+  rpc CreateOperation(TransportOperation) returns (TransportOperation) {}
+  rpc AlterOperation(TransportOperation) returns (TransportOperation) {}
+  rpc GetFilteredOperations(OperationFilter) returns (TransportOperationList) {}
+
+  //rpc DeleteGarages(DeleteRequest) returns (google.protobuf.Empty);
+  rpc GetAllGarages(google.protobuf.Empty) returns (GarageFacilityList) {}
+  rpc AlterGarage(GarageFacility) returns (GarageFacility) {}
+  rpc CreateGarage(GarageFacility) returns (GarageFacility) {}
+
+  rpc GetFilteredTransport(TransportFilter) returns (TransportList) {}
+  rpc CreateTransport(Transport) returns (Transport) {}
+  rpc AlterTransport(Transport) returns (Transport) {}
+  rpc GetAllTransports(google.protobuf.Empty) returns (TransportList) {}
+}

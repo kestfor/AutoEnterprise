@@ -1,0 +1,37 @@
+services:
+  app:
+    build: .
+    container_name: go_app
+    ports:
+      - "12345:12345"
+    depends_on:
+      - db
+
+  db:
+    image: postgres:latest
+    restart: on-failure
+
+    environment:
+      POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
+      POSTGRES_USER: '${POSTGRES_USER}'
+      POSTGRES_DB: '${POSTGRES_DB}'
+
+
+
+    volumes:
+      - ./docker_volumes/postgres-data:/var/lib/postgresql/data
+      - ./docker_volumes/sql_init_scripts:/docker-entrypoint-initdb.d
+      - ./docker_volumes/postgres.conf:/usr/local/etc/postgres/postgres.conf
+
+    command: "postgres -c config_file=/usr/local/etc/postgres/postgres.conf"
+
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER}"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 80s
+
+    ports:
+      - "5432:5432"
+

@@ -1,0 +1,220 @@
+syntax = "proto3";
+package main;
+option go_package = ".";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+enum Role {
+  foreman = 0;
+  master = 1;
+  manager = 2;
+  driver = 3;
+  technician = 4;
+  welder = 5;
+  assembler = 6;
+  plumber = 7;
+}
+
+enum RepairState {
+  in_progress = 0;
+  finished = 1;
+  not_started = 2;
+}
+
+message TransportUnit {
+  optional int32 id = 1;
+  string name = 2;
+  optional string description = 3;
+  optional string type = 4;
+}
+
+message RepairWork {
+  optional int32 id = 1;
+  optional string description = 2;
+  google.protobuf.Timestamp startTime = 3;
+  optional google.protobuf.Timestamp endTime = 4;
+  int32 transportId = 5;
+  int32 servicePersonnelId = 6;
+  optional int32 unitId = 7;
+  optional float repairCost = 8;
+  string state = 9;
+}
+
+message Brigade {
+  optional int32 id = 1;
+  optional int32 foremanId = 2;
+  string name = 3;
+}
+
+message DriverInfo {
+  optional int32 transportId = 1;
+  optional int32 brigadeId = 3;
+}
+
+message ForemanInfo {
+  optional int32 masterId = 1;
+  optional string serviceCenter = 3;
+  optional string certification = 4;
+}
+
+message MasterInfo {
+  optional int32 managerId = 1;
+}
+
+message ManagerInfo {
+  string department = 2;
+  int32 managementExperienceYears = 3;
+
+}
+
+message AssemblerInfo {
+  int32 experienceYears = 2;
+  optional string specialization = 3;
+  optional string certification = 4;
+  optional int32 brigadeId = 5;
+
+}
+
+message PlumberInfo {
+  optional string specialization = 2;
+  optional string certification = 3;
+  bool safetyTraining = 4;
+  optional int32 brigadeId = 5;
+}
+
+message TechnicianInfo {
+  optional string fieldOfExpertise = 2;
+  optional string certification = 3;
+  optional int32 brigadeId = 5;
+}
+
+message WelderInfo {
+  optional string weldingType = 2;
+  optional string certification = 3;
+  bool safetyTraining = 4;
+  optional int32 brigadeId = 5;
+}
+
+message Person {
+  optional int32 id = 1;
+  string firstName = 2;
+  string secondName = 3;
+  string role = 4;
+  google.protobuf.Timestamp birthDate = 13;
+  string phoneNumber = 14;
+  string email = 15;
+  float salary = 16;
+
+  oneof personInfo {
+    ForemanInfo foremanInfo = 5;
+    MasterInfo masterInfo = 6;
+    ManagerInfo managerInfo = 7;
+    DriverInfo driverInfo = 8;
+    TechnicianInfo technicianInfo = 9;
+    WelderInfo welderInfo = 10;
+    AssemblerInfo assemblerInfo = 11;
+    PlumberInfo plumberInfo = 12;
+  }
+
+}
+
+message PersonList {
+  repeated Person persons = 1;
+}
+
+message BrigadeList {
+  repeated Brigade brigades = 1;
+}
+
+message RepairWorkList {
+  repeated RepairWork repairWorks = 1;
+}
+
+
+message MasterFilter {
+  optional int32 managerId = 1;
+}
+
+message ForemanFilter {
+  optional int32 masterId = 1;
+}
+
+message ServicePersonnelFilter {
+  optional int32 foremanId = 1;
+}
+
+message PersonFilter {
+  repeated Role roles = 1;
+  optional int32 brigadeId = 2;
+  repeated int32 ids = 3;
+
+  oneof roleBasedFilter {
+    MasterFilter masterFilter = 4;
+    ForemanFilter foremanFilter = 5;
+    ServicePersonnelFilter servicePersonnelFilter = 6;
+  }
+}
+
+message RepairWorkFilter {
+  message DateRange {
+    google.protobuf.Timestamp dateFrom = 1;
+    google.protobuf.Timestamp dateTo = 2;
+  }
+
+
+  optional string transportBrand = 7;
+  optional string transportType = 8;
+  repeated RepairState states = 1;
+  optional int32 brigadeId = 2;
+  optional DateRange dateRange = 3;
+  optional int32 transportId = 4;
+  optional int32 servicePersonnelId = 5;
+  optional int32 unitId = 6;
+  repeated int32 ids = 9;
+}
+
+message TransportUnitList {
+  repeated TransportUnit units = 1;
+}
+
+message DriversRequest {
+  int32 transportId = 1;
+}
+
+//message Employer {
+//  repeated Person subordinates = 1;
+//}
+//
+//message SubordinationResponse {
+//  repeated Employer employers = 1;
+//}
+
+//message DeleteRequest {
+//  repeated int32 ids = 1;
+//}
+
+service PersonService {
+  rpc CreateTransportUnit(TransportUnit) returns (TransportUnit) {}
+  rpc AlterTransportUnit(TransportUnit) returns (TransportUnit) {}
+  rpc GetAllTransportUnits(google.protobuf.Empty) returns (TransportUnitList) {}
+
+  rpc GetFilteredPersons(PersonFilter) returns (PersonList) {}
+  rpc GetFilteredRepairWorks(RepairWorkFilter) returns (RepairWorkList) {}
+
+  rpc GetDriversByTransport(DriversRequest) returns (PersonList) {}
+
+
+//  rpc GetSubordination(google.protobuf.Empty) returns (SubordinationResponse) {}
+  //rpc DeletePersons(DeleteRequest) returns (google.protobuf.Empty);
+  //rpc DeleteBrigades(DeleteRequest) returns (google.protobuf.Empty);
+
+  rpc AlterRepairWork(RepairWork) returns (RepairWork) {}
+  rpc CreateRepairWork(RepairWork) returns (RepairWork) {}
+  rpc GetAllRepairWorks(google.protobuf.Empty) returns (RepairWorkList) {}
+  rpc CreateBrigade(Brigade) returns (Brigade) {}
+  rpc AlterBrigade(Brigade) returns (Brigade) {}
+  rpc GetAllBrigades(google.protobuf.Empty) returns (BrigadeList) {}
+  rpc CreatePerson(Person) returns (Person) {}
+  rpc AlterPerson(Person) returns (Person) {}
+  rpc GetAllPersons(google.protobuf.Empty) returns (PersonList) {}
+}
